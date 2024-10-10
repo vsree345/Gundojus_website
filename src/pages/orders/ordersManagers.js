@@ -16,7 +16,7 @@ import { useHistory } from "react-router-dom";
 import { getDatabase, ref as dbRef, onValue } from "firebase/database";
 import { deleteOrderById } from "../utils/firebaseConfig";
 import { NavBar } from "../utils/navbar";
-
+import Footer from "../utils/footer";
 // Normalize phone number by removing non-digit characters
 const normalizePhoneNumber = (phone) => {
   return String(phone).replace(/\D/g, "");
@@ -331,6 +331,7 @@ export default () => {
         </Box>
         {/* End Fixed-Width Container */}
       </Section>
+      <Footer />
     </Theme>
   );
 };

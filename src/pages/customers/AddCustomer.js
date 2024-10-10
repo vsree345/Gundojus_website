@@ -20,7 +20,7 @@ import {
   deleteImageFromStorage, // Import delete function (to be implemented)
 } from "../utils/firebaseConfig"; // Import the uploadImage function
 import { MdDeleteSweep, MdArrowBack } from "react-icons/md"; // Import Delete Icon
-
+import Footer from "../utils/footer";
 import { useHistory } from "react-router-dom";
 
 const generateUUID = () => {
@@ -333,6 +333,7 @@ export default () => {
           </Button>
         </Box>
       </Section>
+      <Footer />
     </Theme>
   );
 };

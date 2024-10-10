@@ -25,7 +25,7 @@ import {
 } from "../utils/firebaseConfig"; // Import Firebase functions
 import { useHistory, useLocation } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
-
+import Footer from "../utils/footer";
 // Helper function to extract the UUID from the URL query string
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -860,6 +860,7 @@ export default () => {
           </div>
         )}
       </Section>
+      <Footer />
     </Theme>
   );
 };

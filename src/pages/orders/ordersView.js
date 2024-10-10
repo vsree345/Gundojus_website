@@ -6,7 +6,7 @@ import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { fetchOrderById } from "../utils/firebaseConfig"; // Import the function to fetch order data from Firebase
 import { useLocation } from "react-router-dom";
 import ProgressBar from "@ramonak/react-progress-bar"; // Import ProgressBar
-
+import Footer from "../utils/footer";
 // Helper function to extract UUID from the URL
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -223,6 +223,7 @@ export default () => {
           />
         </Box>
       </Section>
+      <Footer />
     </Theme>
   );
 };

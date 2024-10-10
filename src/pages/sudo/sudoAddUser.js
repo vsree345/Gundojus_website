@@ -13,6 +13,7 @@ import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { getDatabase, ref as dbRef, push, set } from "firebase/database"; // Firebase database imports
 import { NavBar } from "../utils/navbar";
+import Footer from "../utils/footer";
 // Firebase configuration is initialized elsewhere in firebaseConfig.js
 
 // Function to add a new user to the database
@@ -131,6 +132,7 @@ export default () => {
           </Button>
         </Box>
       </Section>
+      <Footer />
     </Theme>
   );
 };

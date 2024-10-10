@@ -163,3 +163,4 @@ export const editOrderById = async (uuid, updatedFields) => {
   const orderRef = dbRef(database, `orders/${uuid}`);
   await update(orderRef, updatedFields);
 };
+

@@ -6,6 +6,7 @@ import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { RawHtml, Override } from "@quarkly/components";
 import { useHistory } from "react-router-dom";
 import { getDatabase, ref, onValue } from "firebase/database"; // Import Firebase
+import Footer from "./footer";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -142,6 +143,7 @@ export default function Login() {
           {":root {\n  box-sizing: border-box;\n}\n\n* {\n  box-sizing: inherit;\n}"}
         </style>
       </RawHtml>
+      <Footer />
     </Theme>
   );
 }

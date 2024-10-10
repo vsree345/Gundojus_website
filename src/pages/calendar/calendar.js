@@ -7,6 +7,7 @@ import "react-calendar/dist/Calendar.css";
 import "./mobile-month-view.css";
 import { fetchOrdersByDate } from "../utils/firebaseConfig";
 import { NavBar } from "../utils/navbar";
+import Footer from "../utils/footer";
 
 const CalendarPage = () => {
   const [myEvents, setEvents] = useState([]);
@@ -203,7 +204,7 @@ const CalendarPage = () => {
             </Box>
           )}
         </Box>
-
+        
         {/* Toast Notification */}
         {toastMessage && (
           <Box
@@ -219,8 +220,10 @@ const CalendarPage = () => {
           </Box>
         )}
       </Section>
+      <Footer />
     </Theme>
   );
+  
 };
 
 export default CalendarPage;

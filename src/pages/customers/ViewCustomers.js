@@ -10,6 +10,7 @@ import { useHistory } from "react-router-dom";
 import { getDatabase, ref as dbRef, onValue } from "firebase/database";
 import { deleteCustomerById } from "../utils/firebaseConfig";
 import { NavBar } from "../utils/navbar";
+import Footer from "../utils/footer";
 
 const fetchCustomers = (setCustomers) => {
   const db = getDatabase();
@@ -250,6 +251,7 @@ export default () => {
         </Box>
         {/* End Fixed-Width Container */}
       </Section>
+      <Footer />
     </Theme>
   );
 };

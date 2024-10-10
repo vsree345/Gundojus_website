@@ -20,7 +20,7 @@ import {
   deleteImageFromStorage,
 } from "../utils/firebaseConfig";
 import { useHistory, useLocation } from "react-router-dom";
-
+import Footer from "../utils/footer";
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
 };
@@ -375,6 +375,7 @@ export default () => {
           </div>
         )}
       </Section>
+      <Footer />
     </Theme>
   );
 };

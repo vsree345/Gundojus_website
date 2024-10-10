@@ -4,6 +4,7 @@ import { Theme, Link, Text, Box, Section } from "@quarkly/widgets";
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { RawHtml, Override } from "@quarkly/components";
+import Footer from "./footer";
 export default (() => {
 	return <Theme theme={theme}>
 		<GlobalQuarklyPageStyles pageUrl={"404"} />
@@ -61,5 +62,6 @@ export default (() => {
 				{":root {\n  box-sizing: border-box;\n}\n\n* {\n  box-sizing: inherit;\n}"}
 			</style>
 		</RawHtml>
+		<Footer />
 	</Theme>;
 });

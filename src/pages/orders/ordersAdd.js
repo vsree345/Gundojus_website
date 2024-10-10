@@ -22,7 +22,7 @@ import {
   saveOrderToDatabase,
 } from "../utils/firebaseConfig";
 import { useHistory } from "react-router-dom";
-
+import Footer from "../utils/footer";
 // UUID generation function
 const generateUUID = () => {
   const characters =
@@ -616,6 +616,7 @@ export default () => {
           </Button>
         </Box>
       </Section>
+      <Footer />
     </Theme>
   );
 };
