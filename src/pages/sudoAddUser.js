@@ -12,7 +12,7 @@ import {
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { getDatabase, ref as dbRef, push, set } from "firebase/database"; // Firebase database imports
-
+import { NavBar } from "./navbar";
 // Firebase configuration is initialized elsewhere in firebaseConfig.js
 
 // Function to add a new user to the database
@@ -53,6 +53,8 @@ export default () => {
         <title>Add New User</title>
         <meta name={"description"} content={"Add new user by sudo"} />
       </Helmet>
+
+      <NavBar role={sessionStorage.getItem("role")} current={"Add Users"} />  
 
       <Section padding="90px 0 100px 0" quarkly-title="Add-User">
         <Box display="flex" align-items="center" justify-content="center" position="relative">

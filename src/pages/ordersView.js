@@ -24,7 +24,7 @@ export default () => {
   const [orderData, setOrderData] = useState(null); // To store the fetched order data
   const [loading, setLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null); // Add error state
-  console.log(uuid);
+
   // Fetch order details on component mount
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +32,7 @@ export default () => {
         if (uuid) {
           fetchOrderById(uuid, (data) => {
             if (data) {
+              console.log(data);
               setOrderData(data); // Set the fetched data into state
             } else {
               setError("Order not found.");
@@ -121,11 +122,7 @@ export default () => {
           />
 
           <Text margin="15px 0px 15px 0px">Progress</Text>
-          {/* <Progress
-            value={progressLevels[orderData.progress] || 0}
-            max={100}
-            label={orderData.progress || "Pending"}
-          /> */}
+
         </Box>
       </Section>
     </Theme>

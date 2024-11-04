@@ -7,7 +7,7 @@ import { MdCreate, MdDeleteSweep, MdNoteAdd } from "react-icons/md";
 import { useHistory } from "react-router-dom";
 import { getDatabase, ref as dbRef, onValue } from "firebase/database"; // Import the missing Firebase functions
 import { deleteOrderById } from "./firebaseConfig"; // Import your custom delete function
-
+import { NavBar } from "./navbar";
 // Fetch orders from Firebase Realtime Database
 const fetchOrders = (setOrders) => {
   const db = getDatabase();
@@ -76,35 +76,8 @@ export default () => {
         <meta name={"description"} content={"Manage all customer orders"} />
       </Helmet>
 
-      <Box
-        display="flex"
-        justify-content="space-around"
-        align-items="center"
-        padding="20px"
-        background="--color-lightD2"
-      >
-        {[
-          { title: "Summary", path: "/summary" },
-          { title: "Calendar", path: "/calendar" },
-          { title: "Orders", path: "/orders" },
-          { title: "Add Users", path: "/sudo/users/add" },
-        ].map((item, index) => (
-          <Text
-            key={index}
-            onClick={() => history.push(item.path)}
-            cursor="pointer"
-            margin="0 10px"
-            font="--lead"
-            padding="10px"
-            border-radius="5px"
-            transition="background-color 0.3s"
-            hover-background="--color-light"
-            hover-color="--primary"
-          >
-            {item.title}
-          </Text>
-        ))}
-      </Box>
+      <NavBar role={sessionStorage.getItem("role")} current={"Orders"} />  
+
       <Section padding="90px 0 100px 0" quarkly-title="Orders-Manager">
         <Text
           margin="0px 0px 20px 0px"
