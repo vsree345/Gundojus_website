@@ -14,7 +14,11 @@ import {
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { MdDeleteSweep, MdNoteAdd, MdArrowBack } from "react-icons/md";
-import { fetchOrderById, saveOrderToDatabase } from "./firebaseConfig"; // Import Firebase functions
+import {
+  fetchOrderById,
+  saveOrderToDatabase,
+  deleteOrderById,
+} from "./firebaseConfig"; // Import Firebase functions
 import { useHistory, useLocation } from "react-router-dom";
 
 // Helper function to extract the UUID from the URL query string
@@ -32,17 +36,26 @@ export default () => {
   const [loading, setLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null); // Add error state
 
+  const [imageUrls, setImageUrls] = useState([]); // For storing image URLs
+  const [audioURL, setAudioURL] = useState(); // For storing audio URLs
+  const [modalOpen, setModalOpen] = useState(false); // For modal state
+  const [modalImageUrl, setModalImageUrl] = useState(""); // For the image in modal
+
   // Fetch order details on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (uuid) {
-          // Call the updated fetchOrderById function
+          // Call the fetchOrderById function
           fetchOrderById(uuid, (data) => {
             if (data) {
               setOrderData(data); // Set the fetched order data into state
               setPieces(data?.pieces?.details || []); // Set the pieces data
               setProgress(data?.progress || "Pending"); // Set the order progress status
+
+              // Directly set images and audio URLs
+              setImageUrls(data.images || []);
+              setAudioURL(data.audio_link || null);
             } else {
               setError("Order not found or invalid UUID.");
             }
@@ -57,17 +70,16 @@ export default () => {
         setLoading(false); // Set loading to false if an error occurs
       }
     };
-  
+
     fetchData();
   }, [uuid]);
-  
 
   // Handle updating order data in Firebase
   const handleSaveOrder = async () => {
     try {
       const updatedOrderData = {
         ...orderData,
-        pieces: { ...orderData.pieces, details: pieces }, // Updating pieces
+        pieces: { ...orderData.pieces, details: pieces, number_of_pieces : totalPieces }, // Updating pieces
         progress: progress, // Updating progress status
       };
       await saveOrderToDatabase(updatedOrderData);
@@ -110,6 +122,20 @@ export default () => {
     setPieces(updatedPieces);
   };
 
+  const totalPieces = pieces.reduce((acc, piece) => acc + piece.quantity, 0);
+
+  // Function to open image in modal
+  const openImageInModal = (url) => {
+    setModalImageUrl(url);
+    setModalOpen(true);
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalImageUrl("");
+  };
+
   if (loading) {
     return <Text>Loading...</Text>; // Display loading if data hasn't been fetched yet
   }
@@ -127,7 +153,12 @@ export default () => {
       </Helmet>
 
       <Section padding="90px 0 100px 0" quarkly-title="Schedule-5">
-        <Box display="flex" align-items="center" justify-content="center" position="relative">
+        <Box
+          display="flex"
+          align-items="center"
+          justify-content="center"
+          position="relative"
+        >
           <Icon
             category="md"
             icon={MdArrowBack}
@@ -137,7 +168,13 @@ export default () => {
             onClick={() => history.push("/orders")} // Go back to orders page
             style={{ cursor: "pointer", position: "absolute", left: "0" }}
           />
-          <Text margin="0px 0px 20px 0px" text-align="center" font="normal 500 56px/1.2 --fontFamily-serifGeorgia" color="--dark" sm-margin="0px 0px 30px 0px">
+          <Text
+            margin="0px 0px 20px 0px"
+            text-align="center"
+            font="normal 500 56px/1.2 --fontFamily-serifGeorgia"
+            color="--dark"
+            sm-margin="0px 0px 30px 0px"
+          >
             Edit Order
           </Text>
         </Box>
@@ -155,7 +192,13 @@ export default () => {
             value={orderData.customer_name || ""}
             readOnly
           />
-          <Hr min-height="10px" min-width="100%" margin="15px 0px 15px 0px" border-color="--color-darkL2" width="1200px" />
+          <Hr
+            min-height="10px"
+            min-width="100%"
+            margin="15px 0px 15px 0px"
+            border-color="--color-darkL2"
+            width="1200px"
+          />
 
           <Text margin="15px 0px 15px 0px">Phone Number</Text>
           <Input
@@ -169,7 +212,13 @@ export default () => {
             value={orderData.phone_number || ""}
             readOnly
           />
-          <Hr min-height="10px" min-width="100%" margin="15px 0px 15px 0px" border-color="--color-darkL2" width="1200px" />
+          <Hr
+            min-height="10px"
+            min-width="100%"
+            margin="15px 0px 15px 0px"
+            border-color="--color-darkL2"
+            width="1200px"
+          />
 
           {/* Progress Dropdown */}
           <Text margin="15px 0px 15px 0px">Progress</Text>
@@ -185,19 +234,43 @@ export default () => {
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
           </Select>
-          <Hr min-height="10px" min-width="100%" margin="15px 0px 15px 0px" border-color="--color-darkL2" width="1200px" />
+          <Hr
+            min-height="10px"
+            min-width="100%"
+            margin="15px 0px 15px 0px"
+            border-color="--color-darkL2"
+            width="1200px"
+          />
 
           {/* Pieces Section */}
-          <Box display="flex" align-items="center" justify-content="space-between">
+          <Box
+            display="flex"
+            align-items="center"
+            justify-content="space-between"
+          >
             <Text margin="15px 0px 15px 0px">Edit Pieces</Text>
-            <Icon category="md" icon={MdNoteAdd} size="32px" margin="16px 0px 16px 0px" onClick={addPieceRow} style={{ cursor: "pointer" }} />
+            <Icon
+              category="md"
+              icon={MdNoteAdd}
+              size="32px"
+              margin="16px 0px 16px 0px"
+              onClick={addPieceRow}
+              style={{ cursor: "pointer" }}
+            />
           </Box>
 
           {pieces.length > 0 && (
             <>
               {pieces.map((piece, index) => (
-                <Box key={index} display="flex" align-items="center" margin="10px 0">
-                  <Text width="5%" textAlign="center">{index + 1}</Text>
+                <Box
+                  key={index}
+                  display="flex"
+                  align-items="center"
+                  margin="10px 0"
+                >
+                  <Text width="5%" textAlign="center">
+                    {index + 1}
+                  </Text>
                   <Select
                     value={piece.type}
                     onChange={(e) => handleTypeChange(index, e.target.value)}
@@ -215,7 +288,9 @@ export default () => {
                   <Input
                     type="number"
                     value={piece.quantity}
-                    onChange={(e) => handleQuantityChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleQuantityChange(index, e.target.value)
+                    }
                     width="20%"
                     min="1"
                     background="white"
@@ -244,14 +319,104 @@ export default () => {
               ))}
             </>
           )}
+          <Text margin="15px 0px 15px 0px">Total Pieces: {totalPieces}</Text>
+          <Hr
+            min-height="10px"
+            min-width="100%"
+            margin="15px 0px 15px 0px"
+            border-color="--color-darkL2"
+            width="1200px"
+          />
 
-          <Hr min-height="10px" min-width="100%" margin="15px 0px 15px 0px" border-color="--color-darkL2" width="1200px" />
-          
-          <Button onClick={handleSaveOrder} margin="40px 0" background="#cb7731" color="white" padding="10px 20px" border-radius="7.5px">
+          {/* Display Images */}
+          {imageUrls.length > 0 && (
+            <>
+              <Text margin="15px 0px 15px 0px">Images</Text>
+              <Box display="flex" flex-wrap="wrap">
+                {imageUrls.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Order Image ${index + 1}`}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      margin: "10px",
+                      cursor: "pointer",
+                      objectFit: "cover",
+                    }}
+                    onClick={() => openImageInModal(url)}
+                  />
+                ))}
+              </Box>
+              <Hr
+                min-height="10px"
+                min-width="100%"
+                margin="15px 0px 15px 0px"
+                border-color="--color-darkL2"
+                width="1200px"
+              />
+            </>
+          )}
+
+          {/* Display Audio Files */}
+          {audioURL && (
+            <>
+              <Text margin="15px 0px 15px 0px">Audio</Text>
+              <Box display="flex" flex-direction="column">
+                <audio controls style={{ margin: "10px 0" }}>
+                  <source src={audioURL} />
+                  Your browser does not support the audio element.
+                </audio>
+              </Box>
+              <Hr
+                min-height="10px"
+                min-width="100%"
+                margin="15px 0px 15px 0px"
+                border-color="--color-darkL2"
+                width="1200px"
+              />
+            </>
+          )}
+
+          <Button
+            onClick={handleSaveOrder}
+            margin="40px 0"
+            background="#cb7731"
+            color="white"
+            padding="10px 20px"
+            border-radius="7.5px"
+          >
             Save Changes
           </Button>
         </Box>
       </Section>
+
+      {/* Image Modal */}
+      {modalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={closeModal}
+        >
+          <img
+            src={modalImageUrl}
+            alt="Full Size"
+            style={{ maxHeight: "90%", maxWidth: "90%" }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </Theme>
   );
 };

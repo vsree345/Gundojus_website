@@ -10,7 +10,7 @@ import Page404 from "pages/page404";
 
 // Private route for authenticated users (manager or sudo)
 const PrivateRoute = ({ component: Component, ...rest }) => {
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   return (
     <Route
       {...rest}
@@ -27,7 +27,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 
 // Sudo-only route
 const SudoRoute = ({ component: Component, ...rest }) => {
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   return (
     <Route
       {...rest}

@@ -28,8 +28,8 @@ export default function Login() {
         if (user.email === email && user.password === password) {
           userFound = true;
 
-          // Store user role in localStorage
-          localStorage.setItem("role", user.role);
+          // Store user role in sessionStorage
+          sessionStorage.setItem("role", user.role);
 
           // Redirect based on role
           if (user.role === "manager" || user.role === "sudo") {

@@ -101,7 +101,7 @@ export default () => {
             <option value="manager">Manager</option>
             <option value="sudo">Sudo</option>
           </Select>
-
+          <br />
           <Button
             onClick={handleSubmit}
             margin="40px 0"

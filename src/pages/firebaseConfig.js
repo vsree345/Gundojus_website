@@ -1,6 +1,18 @@
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import 'ref' directly
-import { getDatabase, ref as dbRef, push, set, onValue, remove } from "firebase/database"; // Import Realtime Database functions
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage"; // Import 'ref' directly
+import {
+  getDatabase,
+  ref as dbRef,
+  set,
+  onValue,
+  remove,
+  update,
+} from "firebase/database"; // Import Realtime Database functions
 
 // Firebase credentials (move to .env)
 const firebaseConfig = {
@@ -36,35 +48,28 @@ export const uploadAudio = async (audioBlob) => {
 };
 
 // Function to save order to Firebase Realtime Database
-export const saveOrderToDatabase = async (orderData) => {
-  const ordersRef = dbRef(database, "orders");
-  const newOrderRef = push(ordersRef);
-  await set(newOrderRef, orderData);
+export const saveOrderToDatabase = async (orderData, orderUUID) => {
+  const orderRef = dbRef(database, `orders/${orderUUID}`);
+  await set(orderRef, orderData);
 };
 
-// Function to fetch an order by UUID
 // Function to fetch an order by UUID
 export const fetchOrderById = async (uuid, callback) => {
-  const ordersRef = dbRef(database, "orders");
-  onValue(ordersRef, (snapshot) => {
-    const orders = snapshot.val();
-    let foundOrder = null;
-
-    // Loop through all orders and find the one with the matching UUID
-    for (const key in orders) {
-      if (orders[key].uuid === uuid) {
-        foundOrder = orders[key];
-        break;
-      }
-    }
-
-    callback(foundOrder); // Return the found order or null if not found
+  const orderRef = dbRef(database, `orders/${uuid}`);
+  onValue(orderRef, (snapshot) => {
+    const order = snapshot.val();
+    callback(order); // Return the found order or null if not found
   });
 };
-
 
 // Function to delete an order by UUID
 export const deleteOrderById = async (uuid) => {
   const orderRef = dbRef(database, `orders/${uuid}`);
   await remove(orderRef);
+};
+
+// Function to edit an order by UUID
+export const editOrderById = async (uuid, updatedFields) => {
+  const orderRef = dbRef(database, `orders/${uuid}`);
+  await update(orderRef, updatedFields);
 };

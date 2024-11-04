@@ -21,7 +21,6 @@ import {
   saveOrderToDatabase,
 } from "./firebaseConfig";
 import { useHistory } from "react-router-dom";
-import * as Components from "components";
 
 // UUID generation function
 const generateUUID = () => {
@@ -149,7 +148,7 @@ export default () => {
   const [images, setImages] = useState([]);
   const [pieces, setPieces] = useState([]);
   const [audioLink, setAudioLink] = useState(""); // To store audio URL
-  const [deadlineDate, setDeadlineDate] = useState(null); // Added state for deadline date
+  const [deadlineDate, setDeadlineDate] = useState(new Date()); // Added state for deadline date
   const history = useHistory();
 
   // Handle file upload and store image paths
@@ -222,6 +221,14 @@ export default () => {
       })
       .replace(/(\d+)(th|st|nd|rd)/, "$1th");
 
+    const deadline_formatted = deadlineDate
+      .toLocaleDateString("en-US", {
+        day: "numeric",
+        year: "numeric",
+        month: "long",
+      })
+      .replace(/(\d+)(th|st|nd|rd)/, "$1th");
+
     // Generate UUID
     const orderUUID = generateUUID();
 
@@ -240,25 +247,17 @@ export default () => {
       orderCreationTime,
       orderCreationDate,
       progress: "Pending",
-      uuid: orderUUID,
-      deadline: deadlineDate, // Include the formatted deadline date
+      deadline: deadline_formatted, // Include the formatted deadline date
     };
-
+    // console.log(orderData);
     // Save order to Firebase Realtime Database
-    await saveOrderToDatabase(orderData);
+    // await saveOrderToDatabase(orderData, orderUUID);
 
     // Send WhatsApp message
-    sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
+    // sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
 
     // Redirect to orders page
     history.push("/orders");
-  };
-
-  // Function to get ordinal suffix
-  const getOrdinalSuffix = (n) => {
-    const s = ["th", "st", "nd", "rd"],
-      v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
   };
 
   return (
@@ -277,6 +276,38 @@ export default () => {
         />
       </Helmet>
 
+      {/* Navigation Header */}
+      <Box
+        display="flex"
+        justify-content="space-around"
+        align-items="center"
+        padding="20px"
+        background="--color-lightD2"
+      >
+        {[
+          { title: "Summary", path: "/summary" },
+          { title: "Calendar", path: "/calendar" },
+          { title: "Orders", path: "/orders" },
+          { title: "Add Users", path: "/sudo/users/add" },
+        ].map((item, index) => (
+          <Text
+            key={index}
+            onClick={() => history.push(item.path)}
+            cursor="pointer"
+            margin="0 10px"
+            font="--lead"
+            padding="10px"
+            border-radius="5px"
+            transition="background-color 0.3s"
+            hover-background="--color-light"
+            hover-color="--primary"
+          >
+            {item.title}
+          </Text>
+        ))}
+      </Box>
+
+      {/* Main Content */}
       <Section padding="90px 0 100px 0" quarkly-title="Schedule-5">
         <Box
           display="flex"
@@ -461,9 +492,7 @@ export default () => {
                     type="text"
                     placeholder="Remarks"
                     value={piece.remarks}
-                    onChange={(e) =>
-                      handleRemarksChange(index, e.target.value)
-                    }
+                    onChange={(e) => handleRemarksChange(index, e.target.value)}
                     width="40%"
                     background="white"
                     padding="5px"
@@ -495,31 +524,17 @@ export default () => {
 
           {/* Deadline Section */}
           <Text margin="15px 0px 15px 0px">Deadline</Text>
-          <Components.QuarklycommunityKitDateSingleInput
-            required
-            onChange={(value) => {
-              const selectedDate = new Date(value);
-
-              const day = selectedDate.getDate();
-              const month = selectedDate.toLocaleString("default", {
-                month: "long",
-              });
-              const year = selectedDate.getFullYear();
-
-              const formattedDate = `${getOrdinalSuffix(day)} ${month}, ${year}`;
-
-              console.log(formattedDate); // Console log the formatted date
-
-              setDeadlineDate(formattedDate); // Set the formatted deadline date
+          <Input
+            type="date"
+            value={deadlineDate.toISOString().split("T")[0]}
+            onChange={(e) => {
+              setDeadlineDate(new Date(e.target.value));
             }}
-          >
-            <Override
-              slot="Input"
-              border-color="--color-darkL2"
-              border-radius="7.5px"
-            />
-          </Components.QuarklycommunityKitDateSingleInput>
-
+            width="40%"
+            background="white"
+            padding="5px"
+            margin="0 10px"
+          />
           <Button
             onClick={handleSubmitOrder}
             margin="40px 0"
