@@ -505,6 +505,13 @@ export default () => {
             padding="5px"
             margin="0 10px"
           />
+          <Hr
+            min-height="10px"
+            min-width="100%"
+            margin="15px 0px 15px 0px"
+            border-color="--color-darkL2"
+            width="1200px"
+          />
           <Button
             onClick={handleSubmitOrder}
             margin="40px 0"

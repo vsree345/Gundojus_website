@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import theme from "theme";
 import {
   Theme,
@@ -18,7 +18,9 @@ import {
   fetchOrderById,
   saveOrderToDatabase,
   deleteOrderById,
-  editOrderById
+  editOrderById,
+  uploadImage,
+  uploadAudio
 } from "./firebaseConfig"; // Import Firebase functions
 import { useHistory, useLocation } from "react-router-dom";
 
@@ -36,56 +38,211 @@ export default () => {
   const [progress, setProgress] = useState(""); // To track the progress status
   const [loading, setLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null); // Add error state
-
   const [imageUrls, setImageUrls] = useState([]); // For storing image URLs
-  const [audioURL, setAudioURL] = useState(); // For storing audio URLs
+  const [audioURL, setAudioURL] = useState(null); // For storing audio URLs
   const [modalOpen, setModalOpen] = useState(false); // For modal state
   const [modalImageUrl, setModalImageUrl] = useState(""); // For the image in modal
+  const [deadline, setDeadline] = useState(""); // For storing the deadline date
+
+  const convertToInputDateFormat = (dateString) => {
+    // Parse the date string, e.g., "November 8, 2024"
+    const parsedDate = new Date(dateString);
+  
+    // Format as YYYY-MM-DD for input date compatibility
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(parsedDate.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+  
 
   // Fetch order details on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (uuid) {
-          // Call the fetchOrderById function
           fetchOrderById(uuid, (data) => {
             if (data) {
-              setOrderData(data); // Set the fetched order data into state
-              setPieces(data?.pieces?.details || []); // Set the pieces data
-              setProgress(data?.progress || "Pending"); // Set the order progress status
-
-              // Directly set images and audio URLs
+              setOrderData(data);
+              setPieces(data?.pieces?.details || []);
+              setProgress(data?.progress || "Pending");
               setImageUrls(data.images || []);
               setAudioURL(data.audio_link || null);
+              setDeadline(convertToInputDateFormat(data.deadline) || ""); // Set deadline if available
             } else {
               setError("Order not found or invalid UUID.");
             }
-            setLoading(false); // Set loading to false after fetching
+            setLoading(false);
           });
         } else {
           setError("Invalid order UUID.");
-          setLoading(false); // Set loading to false if UUID is invalid
+          setLoading(false);
         }
       } catch (err) {
         setError("Error fetching order data.");
-        setLoading(false); // Set loading to false if an error occurs
+        setLoading(false);
       }
     };
-
     fetchData();
   }, [uuid]);
+
+
+
+  // Handle file upload for additional images
+  const handleFileUpload = async (files) => {
+    try {
+      const uploadedImageUrls = await Promise.all(
+        files.map((file) => uploadImage(file))
+      );
+      setImageUrls((prevUrls) => [...prevUrls, ...uploadedImageUrls]);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
+  };
+
+  // Handle audio upload
+  const handleAudioUpload = async (audioBlob) => {
+    try {
+      const audioLink = await uploadAudio(audioBlob);
+      setAudioURL(audioLink);
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+    }
+  };
+
+  const FileUploader = ({ handleFile }) => {
+    const hiddenFileInput = useRef(null);
+  
+    const handleClick = () => {
+      hiddenFileInput.current.click();
+    };
+  
+    const handleChange = (event) => {
+      const files = Array.from(event.target.files);
+      handleFile(files);
+    };
+  
+    return (
+      <>
+        <Button
+          className="button-upload"
+          onClick={handleClick}
+          margin="20px 0"
+          background="#cb7731"
+          color="white"
+          padding="10px 20px"
+          border-radius="7.5px"
+        >
+          Upload Images
+        </Button>
+        <input
+          type="file"
+          onChange={handleChange}
+          ref={hiddenFileInput}
+          style={{ display: "none" }}
+          multiple
+          accept="image/*"
+        />
+      </>
+    );
+  };
+  
+  // Audio Recorder Component
+  const AudioRecorder = ({ handleAudioUpload }) => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioURL, setAudioURL] = useState("");
+    const mediaRecorderRef = useRef(null);
+    const audioChunks = useRef([]);
+  
+    const handleStartRecording = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+  
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunks.current.push(event.data);
+        };
+  
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
+          const audioLink = await handleAudioUpload(audioBlob);
+          setAudioURL(audioLink);
+          audioChunks.current = [];
+        };
+  
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (error) {
+        console.error("Error accessing microphone:", error);
+        alert("Error accessing microphone");
+      }
+    };
+  
+    const handleStopRecording = () => {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+      }
+    };
+  
+    return (
+      <>
+        <Button
+          margin="20px 0"
+          background="#cb7731"
+          color="white"
+          padding="10px 20px"
+          border-radius="7.5px"
+          onClick={isRecording ? handleStopRecording : handleStartRecording}
+        >
+          {isRecording ? "Stop Recording" : "Record Audio"}
+        </Button>
+        {audioURL && (
+          <audio controls>
+            <source src={audioURL} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+        )}
+      </>
+    );
+  };
 
   // Handle updating order data in Firebase
   const handleSaveOrder = async () => {
     try {
+
+      const convertToReadableDate = (inputDate) => {
+        // Parse the input date string
+        const date = new Date(inputDate);
+      
+        // Array of month names
+        const monthNames = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+      
+        // Get day, month, and year
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()]; // Get the month name
+        const year = date.getFullYear();
+      
+        return `${month} ${day}, ${year}`;
+      };
+      
+
       const updatedOrderData = {
         ...orderData,
-        pieces: { ...orderData.pieces, details: pieces, number_of_pieces : totalPieces }, // Updating pieces
-        progress: progress, // Updating progress status
+        pieces: { ...orderData.pieces, details: pieces, number_of_pieces: totalPieces },
+        progress,
+        images: imageUrls, // Include updated images array
+        audio_link: audioURL, // Include audio URL
+        deadline: convertToReadableDate(deadline), // Include deadline
       };
       await editOrderById(uuid, updatedOrderData);
       alert("Order updated successfully");
-      history.push("/orders"); // Redirect to /orders page
+      history.push("/orders");
     } catch (err) {
       alert("Error updating order. Please try again.");
     }
@@ -101,7 +258,6 @@ export default () => {
     setPieces(pieces.filter((_, i) => i !== index));
   };
 
-  // Handle updates in the piece's type, quantity, and remarks
   const handleTypeChange = (index, value) => {
     const updatedPieces = pieces.map((piece, i) =>
       i === index ? { ...piece, type: value } : piece
@@ -125,24 +281,24 @@ export default () => {
 
   const totalPieces = pieces.reduce((acc, piece) => acc + piece.quantity, 0);
 
-  // Function to open image in modal
+  // Open image in modal
   const openImageInModal = (url) => {
     setModalImageUrl(url);
     setModalOpen(true);
   };
 
-  // Function to close modal
+  // Close modal
   const closeModal = () => {
     setModalOpen(false);
     setModalImageUrl("");
   };
 
   if (loading) {
-    return <Text>Loading...</Text>; // Display loading if data hasn't been fetched yet
+    return <Text>Loading...</Text>;
   }
 
   if (error) {
-    return <Text>{error}</Text>; // Display error message if an error occurred
+    return <Text>{error}</Text>;
   }
 
   return (
@@ -166,7 +322,7 @@ export default () => {
             size="40px"
             margin="16px"
             padding="0px 0px 16px 0px"
-            onClick={() => history.push("/orders")} // Go back to orders page
+            onClick={() => history.push("/orders")}
             style={{ cursor: "pointer", position: "absolute", left: "0" }}
           />
           <Text
@@ -184,44 +340,27 @@ export default () => {
           <Text margin="15px 0px 15px 0px">Customer Name</Text>
           <Input
             display="block"
-            placeholder-color="LightGray"
             background="white"
             border-color="--color-darkL2"
             border-radius="7.5px"
             width="50%"
-            required
             value={orderData.customer_name || ""}
             readOnly
           />
-          <Hr
-            min-height="10px"
-            min-width="100%"
-            margin="15px 0px 15px 0px"
-            border-color="--color-darkL2"
-            width="1200px"
-          />
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
           <Text margin="15px 0px 15px 0px">Phone Number</Text>
           <Input
             display="block"
-            placeholder-color="LightGray"
             background="white"
             border-color="--color-darkL2"
             border-radius="7.5px"
             width="50%"
-            required
             value={orderData.phone_number || ""}
             readOnly
           />
-          <Hr
-            min-height="10px"
-            min-width="100%"
-            margin="15px 0px 15px 0px"
-            border-color="--color-darkL2"
-            width="1200px"
-          />
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          {/* Progress Dropdown */}
           <Text margin="15px 0px 15px 0px">Progress</Text>
           <Select
             value={progress}
@@ -235,21 +374,14 @@ export default () => {
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
           </Select>
-          <Hr
-            min-height="10px"
-            min-width="100%"
-            margin="15px 0px 15px 0px"
-            border-color="--color-darkL2"
-            width="1200px"
-          />
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          {/* Pieces Section */}
           <Box
             display="flex"
             align-items="center"
             justify-content="space-between"
           >
-            <Text margin="15px 0px 15px 0px">Edit Pieces</Text>
+            <Text margin="15px 0px 15px 0px">Add Pieces</Text>
             <Icon
               category="md"
               icon={MdNoteAdd}
@@ -259,126 +391,98 @@ export default () => {
               style={{ cursor: "pointer" }}
             />
           </Box>
-
-          {pieces.length > 0 && (
-            <>
-              {pieces.map((piece, index) => (
-                <Box
-                  key={index}
-                  display="flex"
-                  align-items="center"
-                  margin="10px 0"
-                >
-                  <Text width="5%" textAlign="center">
-                    {index + 1}
-                  </Text>
-                  <Select
-                    value={piece.type}
-                    onChange={(e) => handleTypeChange(index, e.target.value)}
-                    background="white"
-                    width="20%"
-                    padding="5px"
-                    fontSize="16px"
-                    margin="0 10px"
-                  >
-                    <option value="Lehenga">Lehenga</option>
-                    <option value="Saree">Saree</option>
-                    <option value="Kurti">Kurti</option>
-                    <option value="Western">Western</option>
-                  </Select>
-                  <Input
-                    type="number"
-                    value={piece.quantity}
-                    onChange={(e) =>
-                      handleQuantityChange(index, e.target.value)
-                    }
-                    width="20%"
-                    min="1"
-                    background="white"
-                    padding="5px"
-                    margin="0 10px"
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Remarks"
-                    value={piece.remarks}
-                    onChange={(e) => handleRemarksChange(index, e.target.value)}
-                    width="40%"
-                    background="white"
-                    padding="5px"
-                    margin="0 10px"
-                  />
-                  <Icon
-                    category="md"
-                    icon={MdDeleteSweep}
-                    size="32px"
-                    margin="0px 15px"
-                    onClick={() => removePieceRow(index)}
-                    style={{ cursor: "pointer" }}
-                  />
-                </Box>
-              ))}
-            </>
-          )}
+          {pieces.map((piece, index) => (
+            <Box key={index} display="flex" align-items="center" margin="10px 0">
+              <Text width="5%" textAlign="center">{index + 1}</Text>
+              <Select
+                value={piece.type}
+                onChange={(e) => handleTypeChange(index, e.target.value)}
+                background="white"
+                width="20%"
+                padding="5px"
+                margin="0 10px"
+              >
+                <option value="Lehenga">Lehenga</option>
+                <option value="Saree">Saree</option>
+                <option value="Kurti">Kurti</option>
+                <option value="Western">Western</option>
+              </Select>
+              <Input
+                type="number"
+                value={piece.quantity}
+                onChange={(e) => handleQuantityChange(index, e.target.value)}
+                width="20%"
+                min="1"
+                background="white"
+                padding="5px"
+                margin="0 10px"
+              />
+              <Input
+                type="text"
+                placeholder="Remarks"
+                value={piece.remarks}
+                onChange={(e) => handleRemarksChange(index, e.target.value)}
+                width="40%"
+                background="white"
+                padding="5px"
+                margin="0 10px"
+              />
+              <Icon
+                category="md"
+                icon={MdDeleteSweep}
+                size="32px"
+                margin="0px 15px"
+                onClick={() => removePieceRow(index)}
+                style={{ cursor: "pointer" }}
+              />
+            </Box>
+          ))}
           <Text margin="15px 0px 15px 0px">Total Pieces: {totalPieces}</Text>
-          <Hr
-            min-height="10px"
-            min-width="100%"
-            margin="15px 0px 15px 0px"
-            border-color="--color-darkL2"
-            width="1200px"
-          />
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          {/* Display Images */}
+          <Text margin="15px 0px 15px 0px">Images</Text>
+          <FileUploader handleFile={handleFileUpload} />
           {imageUrls.length > 0 && (
-            <>
-              <Text margin="15px 0px 15px 0px">Images</Text>
-              <Box display="flex" flex-wrap="wrap">
-                {imageUrls.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`Order Image ${index + 1}`}
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      margin: "10px",
-                      cursor: "pointer",
-                      objectFit: "cover",
-                    }}
-                    onClick={() => openImageInModal(url)}
-                  />
-                ))}
-              </Box>
-              <Hr
-                min-height="10px"
-                min-width="100%"
-                margin="15px 0px 15px 0px"
-                border-color="--color-darkL2"
-                width="1200px"
-              />
-            </>
+            <Box display="flex" flex-wrap="wrap">
+              {imageUrls.map((url, index) => (
+                <img
+                  key={index}
+                  src={url}
+                  alt={`Order Image ${index + 1}`}
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    margin: "10px",
+                    cursor: "pointer",
+                    objectFit: "cover",
+                  }}
+                  onClick={() => openImageInModal(url)}
+                />
+              ))}
+            </Box>
           )}
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          {/* Display Audio Files */}
+          <Text margin="15px 0px 15px 0px">Audio</Text>
+          {!audioURL && <AudioRecorder handleAudioUpload={handleAudioUpload} />}
           {audioURL && (
-            <>
-              <Text margin="15px 0px 15px 0px">Audio</Text>
-              <Box display="flex" flex-direction="column">
-                <audio controls style={{ margin: "10px 0" }}>
-                  <source src={audioURL} />
-                  Your browser does not support the audio element.
-                </audio>
-              </Box>
-              <Hr
-                min-height="10px"
-                min-width="100%"
-                margin="15px 0px 15px 0px"
-                border-color="--color-darkL2"
-                width="1200px"
-              />
-            </>
+            <audio controls style={{ margin: "10px 0" }}>
+              <source src={audioURL} />
+              Your browser does not support the audio element.
+            </audio>
           )}
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
+
+          <Text margin="15px 0px 15px 0px">Deadline</Text>
+          <Input
+            type="date"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            width="40%"
+            background="white"
+            padding="5px"
+          />
+          <Hr margin="15px 0px 15px 0px" width="1200px" />
 
           <Button
             onClick={handleSaveOrder}
@@ -393,7 +497,6 @@ export default () => {
         </Box>
       </Section>
 
-      {/* Image Modal */}
       {modalOpen && (
         <div
           style={{

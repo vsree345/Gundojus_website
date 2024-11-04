@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import theme from "theme";
-import {
-  Theme,
-  Text,
-  Input,
-  Box,
-  Section,
-  Progress,
-} from "@quarkly/widgets";
+import { Theme, Text, Input, Box, Section, Hr } from "@quarkly/widgets";
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { fetchOrderById } from "./firebaseConfig"; // Import the function to fetch order data from Firebase
 import { useLocation } from "react-router-dom";
+import ProgressBar from "@ramonak/react-progress-bar"; // Import ProgressBar
 
 // Helper function to extract UUID from the URL
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
+};
+
+// Function to get progress color based on status
+const getProgressColor = (progress) => {
+  if (progress === "Completed") return "#31a931"; // Green for completed
+  if (progress === "In Progress") return "#ffaa00"; // Orange for in progress
+  return "#ff0000"; // Red for others (e.g., Pending)
 };
 
 export default () => {
@@ -32,7 +33,6 @@ export default () => {
         if (uuid) {
           fetchOrderById(uuid, (data) => {
             if (data) {
-              console.log(data);
               setOrderData(data); // Set the fetched data into state
             } else {
               setError("Order not found.");
@@ -48,25 +48,34 @@ export default () => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [uuid]);
-  
 
   // Show loading message if data is not yet fetched
   if (loading) {
-    return <Text>Loading order details...</Text>;
+    return (
+      <Theme theme={theme}>
+        <GlobalQuarklyPageStyles pageUrl={"orders-view"} />
+        <Text>Loading order details...</Text>
+      </Theme>
+    );
   }
 
   if (error) {
-    return <Text>{error}</Text>; // Display error if occurred
+    return (
+      <Theme theme={theme}>
+        <GlobalQuarklyPageStyles pageUrl={"orders-view"} />
+        <Text>{error}</Text> {/* Display error if occurred */}
+      </Theme>
+    );
   }
 
   // Map the progress to numeric values for progress bar
   const progressLevels = {
-    "Pending": 0,
+    Pending: 0,
     "In Progress": 50,
-    "Completed": 100,
+    Completed: 100,
   };
 
   return (
@@ -78,12 +87,24 @@ export default () => {
       </Helmet>
 
       <Section padding="90px 0 100px 0" quarkly-title="View-Order">
-        <Box display="flex" align-items="center" justify-content="center" position="relative">
-          <Text margin="0px 0px 20px 0px" text-align="center" font="normal 500 56px/1.2 --fontFamily-serifGeorgia" color="--dark" sm-margin="0px 0px 30px 0px">
+        <Box
+          display="flex"
+          align-items="center"
+          justify-content="center"
+          position="relative"
+        >
+          <Text
+            margin="0px 0px 20px 0px"
+            text-align="center"
+            font="normal 500 56px/1.2 --fontFamily-serifGeorgia"
+            color="--dark"
+            sm-margin="0px 0px 30px 0px"
+          >
             Order Details
           </Text>
         </Box>
 
+        {/* Customer Information Section */}
         <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
           <Text margin="15px 0px 15px 0px">Customer Name</Text>
           <Input
@@ -108,8 +129,20 @@ export default () => {
             value={orderData.phone_number || ""}
             readOnly
           />
+        </Box>
 
-          <Text margin="15px 0px 15px 0px">Number of Pieces</Text>
+        {/* Horizontal Rule */}
+        <Hr
+          min-height="10px"
+          min-width="100%"
+          margin="15px 0px 15px 0px"
+          border-color="--color-darkL2"
+          width="1200px"
+        />
+
+        {/* Order Information Section */}
+        <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
+          <Text margin="15px 0px 15px 0px">Order Creation Date</Text>
           <Input
             display="block"
             placeholder-color="LightGray"
@@ -117,12 +150,74 @@ export default () => {
             border-color="--color-darkL2"
             border-radius="7.5px"
             width="50%"
-            value={orderData.pieces?.number_of_pieces || 0}
+            value={orderData.orderCreationDate || ""}
             readOnly
           />
 
-          <Text margin="15px 0px 15px 0px">Progress</Text>
+          <Text margin="15px 0px 15px 0px">Order Creation Time</Text>
+          <Input
+            display="block"
+            placeholder-color="LightGray"
+            background="white"
+            border-color="--color-darkL2"
+            border-radius="7.5px"
+            width="50%"
+            value={orderData.orderCreationTime || ""}
+            readOnly
+          />
 
+          <Text margin="15px 0px 15px 0px">Deadline</Text>
+          <Input
+            display="block"
+            placeholder-color="LightGray"
+            background="white"
+            border-color="--color-darkL2"
+            border-radius="7.5px"
+            width="50%"
+            value={orderData.deadline || ""}
+            readOnly
+          />
+        </Box>
+
+        {/* Horizontal Rule */}
+        <Hr
+          min-height="10px"
+          min-width="100%"
+          margin="15px 0px 15px 0px"
+          border-color="--color-darkL2"
+          width="1200px"
+        />
+
+        {/* Pieces Information Section */}
+        <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
+          <Text margin="15px 0px 15px 0px">Pieces</Text>
+          {orderData.pieces?.details?.map((piece, index) => (
+            <Box key={index} display="flex" align-items="center" margin="5px 0">
+              <Text width="200px">{piece.type}</Text>
+              <Text>Quantity: {piece.quantity}</Text>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Horizontal Rule */}
+        <Hr
+          min-height="10px"
+          min-width="100%"
+          margin="15px 0px 15px 0px"
+          border-color="--color-darkL2"
+          width="1200px"
+        />
+
+        {/* Progress Section */}
+        <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
+          <Text margin="15px 0px 15px 0px">Progress</Text>
+          <ProgressBar
+            completed={progressLevels[orderData.progress] || 0}
+            bgColor={getProgressColor(orderData.progress)}
+            labelAlignment="center"
+            labelColor="#ffffff"
+            width="50%"
+          />
         </Box>
       </Section>
     </Theme>
