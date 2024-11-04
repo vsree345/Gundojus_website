@@ -18,6 +18,7 @@ import {
   fetchOrderById,
   saveOrderToDatabase,
   deleteOrderById,
+  editOrderById
 } from "./firebaseConfig"; // Import Firebase functions
 import { useHistory, useLocation } from "react-router-dom";
 
@@ -82,7 +83,7 @@ export default () => {
         pieces: { ...orderData.pieces, details: pieces, number_of_pieces : totalPieces }, // Updating pieces
         progress: progress, // Updating progress status
       };
-      await saveOrderToDatabase(updatedOrderData);
+      await editOrderById(uuid, updatedOrderData);
       alert("Order updated successfully");
       history.push("/orders"); // Redirect to /orders page
     } catch (err) {

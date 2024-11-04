@@ -247,11 +247,12 @@ export default () => {
       orderCreationTime,
       orderCreationDate,
       progress: "Pending",
+      uuid : orderUUID,
       deadline: deadline_formatted, // Include the formatted deadline date
     };
     // console.log(orderData);
     // Save order to Firebase Realtime Database
-    // await saveOrderToDatabase(orderData, orderUUID);
+    await saveOrderToDatabase(orderData, orderUUID);
 
     // Send WhatsApp message
     // sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
