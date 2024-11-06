@@ -12,7 +12,7 @@ import {
   remove,
   push,
   update,
-  off
+  off,
 } from "firebase/database"; // Import Realtime Database functions
 import { deleteObject } from "firebase/storage";
 const REACT_APP_FIREBASE_API_KEY = "BJ{bTzCojnx`woWCerUe9PsvpyU3VIXyI.dj5Od";
@@ -71,9 +71,35 @@ export const saveOrderToDatabase = async (orderData, orderUUID) => {
   await set(orderRef, orderData);
 };
 
+export const addCustomerToDatabase = async (
+  uuid,
+  name,
+  phone,
+  measurements
+) => {
+  const db = getDatabase();
+  const customersRef = dbRef(db, `customers/${uuid}`); // Reference to 'customers' node
+
+  await set(customersRef, {
+    name,
+    phone,
+    measurements, // Array of image URLs
+  });
+  alert("Customer added successfully");
+};
+
 // Function to fetch an order by UUID
 export const fetchOrderById = async (uuid, callback) => {
   const orderRef = dbRef(database, `orders/${uuid}`);
+  onValue(orderRef, (snapshot) => {
+    const order = snapshot.val();
+    callback(order); // Return the found order or null if not found
+  });
+};
+
+export const fetchCustomerById = (uuid, callback) => {
+  console.log(uuid);
+  const orderRef = dbRef(database, `customers/${uuid}`);
   onValue(orderRef, (snapshot) => {
     const order = snapshot.val();
     callback(order); // Return the found order or null if not found
@@ -87,10 +113,6 @@ export const deleteOrderById = async (uuid) => {
 };
 
 // Function to edit an order by UUID
-export const editOrderById = async (uuid, updatedFields) => {
-  const orderRef = dbRef(database, `orders/${uuid}`);
-  await update(orderRef, updatedFields);
-};
 
 export const fetchOrdersByDate = async (date) => {
   const ordersRef = dbRef(database, "orders");
@@ -116,18 +138,6 @@ export const deleteCustomerById = async (uuid) => {
   await remove(customerRef);
 };
 
-export const addCustomerToDatabase = async (name, phone, measurements) => {
-  const db = getDatabase();
-  const customersRef = dbRef(db, "customers"); // Reference to 'customers' node
-  const newCustomerRef = push(customersRef); // Create a new customer entry
-  await set(newCustomerRef, {
-    name,
-    phone,
-    measurements, // Array of image URLs
-  });
-  alert("Customer added successfully");
-};
-
 export const deleteImageFromStorage = async (storagePath) => {
   const storage = getStorage();
   const imageRef = ref(storage, storagePath);
@@ -142,25 +152,14 @@ export const deleteAudioFromStorage = async (storagePath) => {
 };
 
 export const editCustomerById = async (uuid, updatedData) => {
-  try {
-    // Reference to the specific customer in the database
-    const customerRef = ref(database, `customers/${uuid}`);
+  console.log({uuid},{updatedData});
+  const customerRef = dbRef(database, `customers/${uuid}`);
 
-    // Update the customer data
-    await update(customerRef, updatedData);
-
-    console.log(`Customer with UUID ${uuid} updated successfully.`);
-  } catch (error) {
-    console.error("Error updating customer:", error);
-    throw error; // Rethrow the error for further handling if needed
-  }
+  await update(customerRef, updatedData);
 };
 
-export const fetchCustomerById = (uuid, callback) => {
-  console.log(uuid);
+export const editOrderById = async (uuid, updatedFields) => {
+
   const orderRef = dbRef(database, `orders/${uuid}`);
-  onValue(orderRef, (snapshot) => {
-    const order = snapshot.val();
-    callback(order); // Return the found order or null if not found
-  });
+  await update(orderRef, updatedFields);
 };

@@ -23,6 +23,16 @@ import { MdDeleteSweep, MdArrowBack } from "react-icons/md"; // Import Delete Ic
 
 import { useHistory } from "react-router-dom";
 
+const generateUUID = () => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < 7; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
 // The main component for adding a new customer
 export default () => {
   const history = useHistory();
@@ -134,16 +144,18 @@ export default () => {
     }
     const fullPhoneNumber = `${countryCode}${phoneNumber}`;
     try {
-      await addCustomerToDatabase(customerName, fullPhoneNumber, images);
+      await addCustomerToDatabase(generateUUID(), customerName, fullPhoneNumber, images);
       // Reset form fields after successful submission
       setCustomerName("");
       setPhoneNumber("");
       setCountryCode("+91");
       setImages([]);
       alert("Customer added successfully!");
+      history.push("/customers/view");
     } catch (error) {
       console.error("Error adding customer:", error);
       alert("Failed to add customer. Please try again.");
+      history.push("/customers/view");
     }
   };
 
