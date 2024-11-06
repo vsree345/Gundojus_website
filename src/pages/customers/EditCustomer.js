@@ -42,11 +42,10 @@ const FileUploader = ({ handleFile }) => {
       <Button
         onClick={handleClick}
         margin="40px 0"
-        background="#cb7731"
-        color="white"
-        padding="10px 20px"
-        borderRadius="7.5px"
-        aria-label="Upload Measurement Images"
+              background="#cb7731"
+              color="white"
+              padding="10px 20px"
+              border-radius="7.5px"
       >
         Upload Measurement Images
       </Button>
@@ -262,7 +261,7 @@ export default () => {
               borderRadius="7.5px"
               width="50%"
               value={customerData.name || ""}
-              readOnly
+              
               aria-label="Customer Name"
             />
             <Hr margin="15px 0px 15px 0px" width="1200px" />
@@ -274,7 +273,7 @@ export default () => {
               borderRadius="7.5px"
               width="50%"
               value={customerData.phone || ""}
-              readOnly
+              
               aria-label="Phone Number"
             />
             <Hr margin="15px 0px 15px 0px" width="1200px" />
@@ -345,8 +344,7 @@ export default () => {
               background="#cb7731"
               color="white"
               padding="10px 20px"
-              borderRadius="7.5px"
-              aria-label="Save Customer Changes"
+              border-radius="7.5px"
             >
               Save Changes
             </Button>
