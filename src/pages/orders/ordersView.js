@@ -177,7 +177,7 @@ export default () => {
             border-color="--color-darkL2"
             border-radius="7.5px"
             width="50%"
-            value={orderData.deadline || ""}
+            value={orderData.deadline_raw || ""}
             readOnly
           />
         </Box>
