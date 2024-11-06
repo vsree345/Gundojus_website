@@ -7,7 +7,7 @@ import OrdersEdit from "pages/ordersEdit";
 import OrdersView from "pages/ordersView"; // Public access for customers to view orders
 import UsersAdd from "pages/sudoAddUser"; // Sudo-only route
 import Page404 from "pages/page404";
-
+import CalendarPage from "pages/calendar";
 // Private route for authenticated users (manager or sudo)
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const role = sessionStorage.getItem("role");
@@ -54,7 +54,7 @@ export default function App() {
         <PrivateRoute exact path="/orders" component={Orders} />
         <PrivateRoute exact path="/orders/add" component={OrdersAdd} />
         <PrivateRoute exact path="/orders/edit" component={OrdersEdit} />
-
+        <PrivateRoute exact path="/calendar" component={CalendarPage} />
         {/* Sudo Route */}
         <SudoRoute exact path="/sudo/users/add" component={UsersAdd} />
 

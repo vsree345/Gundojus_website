@@ -10,6 +10,10 @@ import {
   ref as dbRef,
   set,
   onValue,
+  query,
+  orderByChild,
+  equalTo,
+  get,
   remove,
   update,
 } from "firebase/database"; // Import Realtime Database functions
@@ -85,4 +89,19 @@ export const deleteOrderById = async (uuid) => {
 export const editOrderById = async (uuid, updatedFields) => {
   const orderRef = dbRef(database, `orders/${uuid}`);
   await update(orderRef, updatedFields);
+};
+
+export const fetchOrdersByDate = async (date) => {
+  const ordersRef = dbRef(database, 'orders');
+  const ordersQuery = query(ordersRef, orderByChild('deadline'), equalTo(date)); // Use 'deadline' as the field
+
+  const snapshot = await get(ordersQuery);
+  const orders = [];
+  if (snapshot.exists()) {
+    snapshot.forEach((childSnapshot) => {
+      orders.push({ id: childSnapshot.key, ...childSnapshot.val() });
+    });
+  }
+
+  return orders; // Return the list of orders for the specified date
 };

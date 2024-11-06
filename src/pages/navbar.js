@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 
 const pages = [
   // { title: "Summary", role: "manager", path: "/summary" },
-  // { title: "Calendar", role: "manager", path: "/calendar" },
+  { title: "Calendar", role: "manager", path: "/calendar" },
   { title: "Orders", role: "manager", path: "/orders" },
   { title: "Add Users", role: "sudo", path: "/sudo/users/add" },
 ];
