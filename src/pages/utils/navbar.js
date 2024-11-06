@@ -7,6 +7,7 @@ const pages = [
   { title: "Calendar", role: "manager", path: "/calendar" },
   { title: "Orders", role: "manager", path: "/orders" },
   { title: "Add Users", role: "sudo", path: "/sudo/users/add" },
+  { title: "View Customers", role: "manager", path: "/customers/view" }
 ];
 
 export const NavBar = ({ role, current }) => {

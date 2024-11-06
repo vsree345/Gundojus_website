@@ -3,7 +3,7 @@ import theme from "theme";
 import { Theme, Text, Input, Box, Section, Hr } from "@quarkly/widgets";
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
-import { fetchOrderById } from "./firebaseConfig"; // Import the function to fetch order data from Firebase
+import { fetchOrderById } from "../utils/firebaseConfig"; // Import the function to fetch order data from Firebase
 import { useLocation } from "react-router-dom";
 import ProgressBar from "@ramonak/react-progress-bar"; // Import ProgressBar
 
@@ -82,8 +82,11 @@ export default () => {
     <Theme theme={theme}>
       <GlobalQuarklyPageStyles pageUrl={"orders-view"} />
       <Helmet>
-        <title>View Order</title>
-        <meta name={"description"} content={"View an existing order"} />
+        <title>View Order</title><link
+          rel={"shortcut icon"}
+          href={"https://i.imgur.com/crcVWqA.png"}
+          type={"image/x-icon"}
+        />
       </Helmet>
 
       <Section padding="90px 0 100px 0" quarkly-title="View-Order">

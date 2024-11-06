@@ -5,8 +5,8 @@ import theme from "theme";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./mobile-month-view.css";
-import { fetchOrdersByDate } from "./firebaseConfig";
-import { NavBar } from "./navbar";
+import { fetchOrdersByDate } from "../utils/firebaseConfig";
+import { NavBar } from "../utils/navbar";
 
 const CalendarPage = () => {
   const [myEvents, setEvents] = useState([]);
@@ -115,7 +115,11 @@ const CalendarPage = () => {
     <Theme theme={theme}>
       <Helmet>
         <title>Calendar</title>
-        <meta name="description" content="Order Calendar" />
+        <link
+          rel={"shortcut icon"}
+          href={"https://i.imgur.com/crcVWqA.png"}
+          type={"image/x-icon"}
+        />
       </Helmet>
 
       {/* Navigation Header */}

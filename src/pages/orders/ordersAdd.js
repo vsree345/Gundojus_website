@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React, { useState, useRef } from "react";
 import theme from "theme";
 import {
@@ -19,7 +20,7 @@ import {
   uploadImage,
   uploadAudio,
   saveOrderToDatabase,
-} from "./firebaseConfig";
+} from "../utils/firebaseConfig";
 import { useHistory } from "react-router-dom";
 
 // UUID generation function
@@ -86,9 +87,8 @@ const FileUploader = ({ handleFile }) => {
 };
 
 // Audio Recorder Component
-const AudioRecorder = ({ handleAudioUpload }) => {
+const AudioRecorder = ({ handleAudioUpload, handleDeleteAudio, audioLink }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [audioURL, setAudioURL] = useState("");
   const mediaRecorderRef = useRef(null);
   const audioChunks = useRef([]);
 
@@ -105,7 +105,6 @@ const AudioRecorder = ({ handleAudioUpload }) => {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
         const audioLink = await handleAudioUpload(audioBlob);
-        setAudioURL(audioLink);
         audioChunks.current = [];
       };
 
@@ -136,11 +135,23 @@ const AudioRecorder = ({ handleAudioUpload }) => {
       >
         {isRecording ? "Stop Recording" : "Record Audio"}
       </Button>
-      {audioURL && (
-        <audio controls>
-          <source src={audioURL} type="audio/wav" />
-          Your browser does not support the audio element.
-        </audio>
+      {audioLink && (
+        <Box display="flex" align-items="center">
+          <audio controls>
+            <source src={audioLink} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+          <Icon
+            category="md"
+            icon={MdDeleteSweep}
+            size="24px"
+            color="#ff0000"
+            margin="0 0 0 10px"
+            onClick={handleDeleteAudio}
+            style={{ cursor: "pointer" }}
+            aria-label="Delete Audio"
+          />
+        </Box>
       )}
     </>
   );
@@ -165,14 +176,32 @@ export default () => {
       setImages((prevImages) => [...prevImages, ...uploadedImageUrls]); // Store URLs
     } catch (error) {
       console.error("Error uploading files:", error);
+      alert("Failed to upload images. Please try again.");
     }
   };
 
   // Handle audio upload and return the uploaded audio URL
   const handleAudioUpload = async (audioBlob) => {
-    const audioURL = await uploadAudio(audioBlob);
-    setAudioLink(audioURL);
-    return audioURL;
+    try {
+      const audioURL = await uploadAudio(audioBlob);
+      setAudioLink(audioURL);
+      return audioURL;
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+      alert("Failed to upload audio. Please try again.");
+      return "";
+    }
+  };
+
+  // Handle deleting an image
+  const handleDeleteImage = (index) => {
+    const updatedImages = images.filter((_, i) => i !== index);
+    setImages(updatedImages);
+  };
+
+  // Handle deleting audio
+  const handleDeleteAudio = () => {
+    setAudioLink("");
   };
 
   // Add a new piece row
@@ -218,6 +247,22 @@ export default () => {
 
   // Submit the order
   const handleSubmitOrder = async () => {
+    // Validate form fields
+    if (!customerName || !phoneNumber) {
+      alert("Please fill in customer name and phone number.");
+      return;
+    }
+
+    if (pieces.length === 0) {
+      alert("Please add at least one piece.");
+      return;
+    }
+
+    if (!deadlineDate) {
+      alert("Please select a deadline date.");
+      return;
+    }
+
     // Get the current date and time
     const now = new Date();
     const orderCreationTime = now.toLocaleTimeString("en-US", {
@@ -266,7 +311,13 @@ export default () => {
     };
     // console.log(orderData);
     // Save order to Firebase Realtime Database
-    await saveOrderToDatabase(orderData, orderUUID);
+    try {
+      await saveOrderToDatabase(orderData, orderUUID);
+    } catch (error) {
+      console.error("Error saving order to database:", error);
+      alert("Failed to save order. Please try again.");
+      return;
+    }
 
     // Send WhatsApp message
     sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
@@ -280,13 +331,10 @@ export default () => {
       <GlobalQuarklyPageStyles pageUrl={"orders-customers"} />
       <Helmet>
         <title>Add Order</title>
-        <meta
-          name={"description"}
-          content={"Web site created using quarkly.io"}
-        />
+
         <link
           rel={"shortcut icon"}
-          href={"https://uploads.quarkly.io/readme/cra/favicon-32x32.ico"}
+          href={"https://i.imgur.com/crcVWqA.png"}
           type={"image/x-icon"}
         />
       </Helmet>
@@ -307,6 +355,7 @@ export default () => {
             padding="0px 0px 16px 0px"
             onClick={() => history.push("/orders")}
             style={{ cursor: "pointer", position: "absolute", left: "0" }}
+            aria-label="Back to Orders"
           />
           <Text
             margin="0px 0px 20px 0px"
@@ -320,6 +369,7 @@ export default () => {
         </Box>
 
         <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
+          {/* Customer Name Input */}
           <Text margin="15px 0px 15px 0px">Customer Name</Text>
           <Input
             display="block"
@@ -329,6 +379,7 @@ export default () => {
             border-radius="7.5px"
             width="50%"
             required
+            value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
           />
           <Hr
@@ -339,6 +390,7 @@ export default () => {
             width="1200px"
           />
 
+          {/* Phone Number Input */}
           <Text margin="15px 0px 15px 0px">Phone Number</Text>
           <Box
             min-width="100px"
@@ -349,9 +401,9 @@ export default () => {
             <Input
               display="inline-block"
               background="white"
-              defaultValue="+91"
+              value={countryCode}
               border-color="--color-darkL2"
-              width="4%"
+              width="5%"
               padding="6px 8px"
               border-radius="7.5px"
               margin="0px 4px 0px 0px"
@@ -359,11 +411,12 @@ export default () => {
               onChange={(e) => setCountryCode(e.target.value)}
             />
             <Input
-              display="grid"
+              display="inline-block"
               background="white"
               border-color="--color-darkL2"
               border-radius="7.5px"
               required
+              value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </Box>
@@ -392,15 +445,32 @@ export default () => {
               {images.map((image, index) => (
                 <Box
                   key={index}
-                  as="img"
-                  // Check if the image is a File object or already uploaded (URL string)
-                  src={
-                    image instanceof File ? URL.createObjectURL(image) : image
-                  }
-                  width="225px"
-                  height="225px"
-                  object-fit="cover"
-                />
+                  as="div"
+                  position="relative" // To position the delete icon
+                >
+                  {/* Image Thumbnail */}
+                  <Box
+                    as="img"
+                    src={image instanceof File ? URL.createObjectURL(image) : image}
+                    width="225px"
+                    height="225px"
+                    object-fit="cover"
+                    border-radius="5px"
+                  />
+                  {/* Delete Icon */}
+                  <Icon
+                    category="md"
+                    icon={MdDeleteSweep}
+                    size="24px"
+                    color="#ff0000"
+                    position="absolute"
+                    top="5px"
+                    right="5px"
+                    onClick={() => handleDeleteImage(index)}
+                    style={{ cursor: "pointer", backgroundColor: "rgba(255,255,255,0.7)", borderRadius: "50%" }}
+                    aria-label={`Delete image ${index + 1}`}
+                  />
+                </Box>
               ))}
             </Box>
           )}
@@ -415,7 +485,11 @@ export default () => {
 
           {/* Audio Recording Section */}
           <Text margin="15px 0px 15px 0px">Record Audio</Text>
-          <AudioRecorder handleAudioUpload={handleAudioUpload} />
+          <AudioRecorder
+            handleAudioUpload={handleAudioUpload}
+            handleDeleteAudio={handleDeleteAudio}
+            audioLink={audioLink}
+          />
 
           {/* Pieces Section */}
           <Box
@@ -431,6 +505,7 @@ export default () => {
               margin="16px 0px 16px 0px"
               onClick={addPieceRow}
               style={{ cursor: "pointer" }}
+              aria-label="Add Piece"
             />
           </Box>
 
@@ -485,10 +560,11 @@ export default () => {
                   <Icon
                     category="md"
                     icon={MdDeleteSweep}
-                    size="32px"
-                    margin="0px 15px"
+                    size="24px"
+                    color="#ff0000"
                     onClick={() => removePieceRow(index)}
                     style={{ cursor: "pointer" }}
+                    aria-label={`Delete piece ${index + 1}`}
                   />
                 </Box>
               ))}
@@ -518,6 +594,7 @@ export default () => {
             background="white"
             padding="5px"
             margin="0 10px"
+            required
           />
           <Hr
             min-height="10px"
@@ -526,6 +603,7 @@ export default () => {
             border-color="--color-darkL2"
             width="1200px"
           />
+          {/* Submit Button */}
           <Button
             onClick={handleSubmitOrder}
             margin="40px 0"

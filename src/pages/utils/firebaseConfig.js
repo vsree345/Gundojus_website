@@ -1,10 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage"; // Import 'ref' directly
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import 'ref' directly
 import {
   getDatabase,
   ref as dbRef,
@@ -15,21 +10,25 @@ import {
   equalTo,
   get,
   remove,
+  push,
   update,
+  off
 } from "firebase/database"; // Import Realtime Database functions
-
+import { deleteObject } from "firebase/storage";
 const REACT_APP_FIREBASE_API_KEY = "BJ{bTzCojnx`woWCerUe9PsvpyU3VIXyI.dj5Od";
 const REACT_APP_FIREBASE_AUTH_DOMAIN = "hvoepkvt.qspe/gjsfcbtfbqq/dpn";
-const REACT_APP_FIREBASE_DATABASE_URL = "iuuqt;00hvoepkvt.qspe.efgbvmu.suec/btjb.tpvuifbtu2/gjsfcbtfebubcbtf/bqq";
+const REACT_APP_FIREBASE_DATABASE_URL =
+  "iuuqt;00hvoepkvt.qspe.efgbvmu.suec/btjb.tpvuifbtu2/gjsfcbtfebubcbtf/bqq";
 const REACT_APP_FIREBASE_PROJECT_ID = "hvoepkvt.qspe";
 const REACT_APP_FIREBASE_STORAGE_BUCKET = "hvoepkvt.qspe/bqqtqpu/dpn";
 const REACT_APP_FIREBASE_MESSAGING_SENDER_ID = ":43279::131:";
 const REACT_APP_FIREBASE_APP_ID = "2;:43279::131:;xfc;25geg8c4ef97cd987gdb11";
 
 function decryptShiftedAscii(text) {
-  return Array.from(text).map(char => String.fromCharCode(char.charCodeAt(0) - 1)).join('');
+  return Array.from(text)
+    .map((char) => String.fromCharCode(char.charCodeAt(0) - 1))
+    .join("");
 }
-
 
 // Firebase credentials (move to .env)
 const firebaseConfig = {
@@ -38,8 +37,10 @@ const firebaseConfig = {
   databaseURL: decryptShiftedAscii(REACT_APP_FIREBASE_DATABASE_URL), // This is required to initialize the Realtime Database
   projectId: decryptShiftedAscii(REACT_APP_FIREBASE_PROJECT_ID),
   storageBucket: decryptShiftedAscii(REACT_APP_FIREBASE_STORAGE_BUCKET),
-  messagingSenderId: decryptShiftedAscii(REACT_APP_FIREBASE_MESSAGING_SENDER_ID),
-  appId: decryptShiftedAscii(REACT_APP_FIREBASE_APP_ID)
+  messagingSenderId: decryptShiftedAscii(
+    REACT_APP_FIREBASE_MESSAGING_SENDER_ID
+  ),
+  appId: decryptShiftedAscii(REACT_APP_FIREBASE_APP_ID),
 };
 
 // Initialize Firebase
@@ -92,8 +93,12 @@ export const editOrderById = async (uuid, updatedFields) => {
 };
 
 export const fetchOrdersByDate = async (date) => {
-  const ordersRef = dbRef(database, 'orders');
-  const ordersQuery = query(ordersRef, orderByChild('deadline_raw'), equalTo(date)); // Use 'deadline' as the field
+  const ordersRef = dbRef(database, "orders");
+  const ordersQuery = query(
+    ordersRef,
+    orderByChild("deadline_raw"),
+    equalTo(date)
+  ); // Use 'deadline' as the field
 
   const snapshot = await get(ordersQuery);
   const orders = [];
@@ -104,4 +109,58 @@ export const fetchOrdersByDate = async (date) => {
   }
 
   return orders; // Return the list of orders for the specified date
+};
+
+export const deleteCustomerById = async (uuid) => {
+  const customerRef = dbRef(database, `customers/${uuid}`);
+  await remove(customerRef);
+};
+
+export const addCustomerToDatabase = async (name, phone, measurements) => {
+  const db = getDatabase();
+  const customersRef = dbRef(db, "customers"); // Reference to 'customers' node
+  const newCustomerRef = push(customersRef); // Create a new customer entry
+  await set(newCustomerRef, {
+    name,
+    phone,
+    measurements, // Array of image URLs
+  });
+  alert("Customer added successfully");
+};
+
+export const deleteImageFromStorage = async (storagePath) => {
+  const storage = getStorage();
+  const imageRef = ref(storage, storagePath);
+  await deleteObject(imageRef);
+};
+
+// Function to delete audio from Firebase Storage
+export const deleteAudioFromStorage = async (storagePath) => {
+  const storage = getStorage();
+  const audioRef = ref(storage, storagePath);
+  await deleteObject(audioRef);
+};
+
+export const editCustomerById = async (uuid, updatedData) => {
+  try {
+    // Reference to the specific customer in the database
+    const customerRef = ref(database, `customers/${uuid}`);
+
+    // Update the customer data
+    await update(customerRef, updatedData);
+
+    console.log(`Customer with UUID ${uuid} updated successfully.`);
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    throw error; // Rethrow the error for further handling if needed
+  }
+};
+
+export const fetchCustomerById = (uuid, callback) => {
+  console.log(uuid);
+  const orderRef = dbRef(database, `orders/${uuid}`);
+  onValue(orderRef, (snapshot) => {
+    const order = snapshot.val();
+    callback(order); // Return the found order or null if not found
+  });
 };

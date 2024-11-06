@@ -12,7 +12,7 @@ import {
 import { Helmet } from "react-helmet";
 import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { getDatabase, ref as dbRef, push, set } from "firebase/database"; // Firebase database imports
-import { NavBar } from "./navbar";
+import { NavBar } from "../utils/navbar";
 // Firebase configuration is initialized elsewhere in firebaseConfig.js
 
 // Function to add a new user to the database
@@ -51,14 +51,29 @@ export default () => {
       <GlobalQuarklyPageStyles pageUrl={"sudo-add-users"} />
       <Helmet>
         <title>Add New User</title>
-        <meta name={"description"} content={"Add new user by sudo"} />
+        <link
+          rel={"shortcut icon"}
+          href={"https://i.imgur.com/crcVWqA.png"}
+          type={"image/x-icon"}
+        />
       </Helmet>
 
-      <NavBar role={sessionStorage.getItem("role")} current={"Add Users"} />  
+      <NavBar role={sessionStorage.getItem("role")} current={"Add Users"} />
 
       <Section padding="90px 0 100px 0" quarkly-title="Add-User">
-        <Box display="flex" align-items="center" justify-content="center" position="relative">
-          <Text margin="0px 0px 20px 0px" text-align="center" font="normal 500 56px/1.2 --fontFamily-serifGeorgia" color="--dark" sm-margin="0px 0px 30px 0px">
+        <Box
+          display="flex"
+          align-items="center"
+          justify-content="center"
+          position="relative"
+        >
+          <Text
+            margin="0px 0px 20px 0px"
+            text-align="center"
+            font="normal 500 56px/1.2 --fontFamily-serifGeorgia"
+            color="--dark"
+            sm-margin="0px 0px 30px 0px"
+          >
             Add New User
           </Text>
         </Box>

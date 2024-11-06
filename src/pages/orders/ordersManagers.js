@@ -6,8 +6,8 @@ import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { MdCreate, MdDeleteSweep, MdNoteAdd } from "react-icons/md";
 import { useHistory } from "react-router-dom";
 import { getDatabase, ref as dbRef, onValue } from "firebase/database";
-import { deleteOrderById } from "./firebaseConfig";
-import { NavBar } from "./navbar";
+import { deleteOrderById } from "../utils/firebaseConfig";
+import { NavBar } from "../utils/navbar";
 
 // Fetch orders from Firebase Realtime Database
 const fetchOrders = (setOrders) => {
@@ -74,7 +74,11 @@ export default () => {
       <GlobalQuarklyPageStyles pageUrl={"orders-managers"} />
       <Helmet>
         <title>Orders Manager</title>
-        <meta name={"description"} content={"Manage all customer orders"} />
+        <link
+          rel={"shortcut icon"}
+          href={"https://i.imgur.com/crcVWqA.png"}
+          type={"image/x-icon"}
+        />
       </Helmet>
 
       <NavBar role={sessionStorage.getItem("role")} current={"Orders"} />

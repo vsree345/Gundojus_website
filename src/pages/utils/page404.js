@@ -10,9 +10,11 @@ export default (() => {
 		<Helmet>
 			<title>
 				Error 404
-			</title>
-			<meta name={"description"} content={"Web site created using quarkly.io"} />
-			<link rel={"shortcut icon"} href={"https://uploads.quarkly.io/readme/cra/favicon-32x32.ico"} type={"image/x-icon"} />
+			</title><link
+          rel={"shortcut icon"}
+          href={"https://i.imgur.com/crcVWqA.png"}
+          type={"image/x-icon"}
+        />
 		</Helmet>
 		<Section padding="88px 0 88px 0" min-height="100vh" quarkly-title="404-1">
 			<Override slot="SectionContent" max-width="1220px" justify-content="center" />

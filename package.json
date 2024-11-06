@@ -1,6 +1,6 @@
 {
   "name": "Gundojus Internal Tools",
-  "homepage": "https://gundojus.github.io/Gundojus-internal-tools/",
+  "homepage": "https://internal.gundojus.in",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",

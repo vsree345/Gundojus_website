@@ -1,13 +1,16 @@
 import React from "react";
 import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom";
-import Login from "pages/login";
-import Orders from "pages/ordersManagers";
-import OrdersAdd from "pages/ordersAdd";
-import OrdersEdit from "pages/ordersEdit";
-import OrdersView from "pages/ordersView"; // Public access for customers to view orders
-import UsersAdd from "pages/sudoAddUser"; // Sudo-only route
-import Page404 from "pages/page404";
-import CalendarPage from "pages/calendar";
+import Login from "pages/utils/login";
+import Orders from "pages/orders/ordersManagers";
+import OrdersAdd from "pages/orders/ordersAdd";
+import OrdersEdit from "pages/orders/ordersEdit";
+import OrdersView from "pages/orders/ordersView"; // Public access for customers to view orders
+import UsersAdd from "pages/sudo/sudoAddUser"; // Sudo-only route
+import Page404 from "pages/utils/page404";
+import CalendarPage from "pages/calendar/calendar";
+import AddCustomer from "pages/customers/AddCustomer";
+import ViewCustomers from "pages/customers/ViewCustomers";
+import EditCustomer from "pages/customers/EditCustomer";
 // Private route for authenticated users (manager or sudo)
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const role = sessionStorage.getItem("role");
@@ -55,6 +58,10 @@ export default function App() {
         <PrivateRoute exact path="/orders/add" component={OrdersAdd} />
         <PrivateRoute exact path="/orders/edit" component={OrdersEdit} />
         <PrivateRoute exact path="/calendar" component={CalendarPage} />
+        <PrivateRoute exact path="/customers/view" component={ViewCustomers} />
+        <PrivateRoute exact path="/customers/add" component={AddCustomer} />
+        <PrivateRoute exact path="/customers/edit" component={EditCustomer} />
+
         {/* Sudo Route */}
         <SudoRoute exact path="/sudo/users/add" component={UsersAdd} />
 

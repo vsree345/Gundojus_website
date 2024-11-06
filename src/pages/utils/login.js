@@ -50,8 +50,7 @@ export default function Login() {
       <GlobalQuarklyPageStyles pageUrl={"index"} />
       <Helmet>
         <title>Login</title>
-        <meta name={"description"} content={"Web site created using quarkly.io"} />
-        <link rel={"shortcut icon"} href={"https://uploads.quarkly.io/readme/cra/favicon-32x32.ico"} type={"image/x-icon"} />
+        <link rel={"shortcut icon"} href={"https://i.imgur.com/crcVWqA.png"} type={"image/x-icon"} />
       </Helmet>
       <Section height="auto" background="--color-light" padding="0 0 0px 0">
         <Section padding="80px 0" sm-padding="40px 0">
