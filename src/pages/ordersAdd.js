@@ -36,10 +36,13 @@ const generateUUID = () => {
 // WhatsApp message sending function
 const sendWhatsAppMessage = (phoneNumber, orderUUID) => {
   const message = `Hi, your order with UUID: ${orderUUID} has been successfully placed.`;
-  const whatsappAPIUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+  console.log(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
     message
-  )}`;
-  window.open(whatsappAPIUrl, "_blank");
+  )}`);
+  // const whatsappAPIUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+  //   message
+  // )}`;
+  // window.open(whatsappAPIUrl, "_blank");
 };
 
 // Custom File Uploader Component
@@ -255,7 +258,7 @@ export default () => {
     await saveOrderToDatabase(orderData, orderUUID);
 
     // Send WhatsApp message
-    // sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
+    sendWhatsAppMessage(`${countryCode}${phoneNumber}`, orderUUID);
 
     // Redirect to orders page
     history.push("/orders");
