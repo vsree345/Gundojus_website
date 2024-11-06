@@ -177,7 +177,7 @@ export default () => {
 
   // Add a new piece row
   const addPieceRow = () => {
-    setPieces([...pieces, { type: "Lehenga", quantity: 1, remarks: "" }]);
+    setPieces([...pieces, { type: "Blouse", quantity: 1, remarks: "" }]);
   };
 
   // Remove a piece row
@@ -211,8 +211,8 @@ export default () => {
 
   const formatDateLocal = (date) => {
     const year = date.getFullYear();
-    const month = (`0${date.getMonth() + 1}`).slice(-2); // Months are zero-based
-    const day = (`0${date.getDate()}`).slice(-2);
+    const month = `0${date.getMonth() + 1}`.slice(-2); // Months are zero-based
+    const day = `0${date.getDate()}`.slice(-2);
     return `${year}-${month}-${day}`;
   };
 
@@ -455,10 +455,10 @@ export default () => {
                     fontSize="16px"
                     margin="0 10px"
                   >
+                    <option value="Blouse">Blouse</option>
                     <option value="Lehenga">Lehenga</option>
-                    <option value="Saree">Saree</option>
-                    <option value="Kurti">Kurti</option>
-                    <option value="Western">Western</option>
+                    <option value="Dress">Dress</option>
+                    <option value="Peticoat">Peticoat</option>
                   </Select>
                   <Input
                     type="number"

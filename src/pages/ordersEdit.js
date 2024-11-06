@@ -275,7 +275,7 @@ export default () => {
 
   // Add a new piece row
   const addPieceRow = () => {
-    setPieces([...pieces, { type: "Lehenga", quantity: 1, remarks: "" }]);
+    setPieces([...pieces, { type: "Blouse", quantity: 1, remarks: "" }]);
   };
 
   // Remove a piece row
@@ -335,200 +335,218 @@ export default () => {
       </Helmet>
 
       <Section padding="90px 0 100px 0" quarkly-title="Schedule-5">
+        {/* Begin Fixed-Width Container */}
         <Box
-          display="flex"
-          align-items="center"
-          justify-content="center"
-          position="relative"
+          min-width="1200px"
+          overflow="auto"
+          margin="0 auto"
+          padding="0 10px" // Optional: Add horizontal padding
         >
-          <Icon
-            category="md"
-            icon={MdArrowBack}
-            size="40px"
-            margin="16px"
-            padding="0px 0px 16px 0px"
-            onClick={() => history.push("/orders")}
-            style={{ cursor: "pointer", position: "absolute", left: "0" }}
-          />
-          <Text
-            margin="0px 0px 20px 0px"
-            text-align="center"
-            font="normal 500 56px/1.2 --fontFamily-serifGeorgia"
-            color="--dark"
-            sm-margin="0px 0px 30px 0px"
-          >
-            Edit Order
-          </Text>
-        </Box>
-
-        <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
-          <Box display="flex" align-items="center" margin="15px 0px 15px 0px">
-            <Text margin="0">Customer Name</Text>
-            <FaWhatsapp
-              size="24px"
-              style={{ cursor: "pointer", marginLeft: "10px" }}
-              onClick={handleWhatsAppClick}
-            />
-          </Box>
-          <Input
-            display="block"
-            background="white"
-            border-color="--color-darkL2"
-            border-radius="7.5px"
-            width="50%"
-            value={orderData.customer_name || ""}
-            readOnly
-          />
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
-
-          <Text margin="15px 0px 15px 0px">Phone Number</Text>
-          <Input
-            display="block"
-            background="white"
-            border-color="--color-darkL2"
-            border-radius="7.5px"
-            width="50%"
-            value={orderData.phone_number || ""}
-            readOnly
-          />
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
-
-          <Text margin="15px 0px 15px 0px">Progress</Text>
-          <Select
-            value={progress}
-            onChange={(e) => setProgress(e.target.value)}
-            background="white"
-            width="50%"
-            padding="5px"
-            border-radius="7.5px"
-          >
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </Select>
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
-
           <Box
             display="flex"
             align-items="center"
-            justify-content="space-between"
+            justify-content="center"
+            position="relative"
           >
-            <Text margin="15px 0px 15px 0px">Add Pieces</Text>
             <Icon
               category="md"
-              icon={MdNoteAdd}
-              size="32px"
-              margin="16px 0px 16px 0px"
-              onClick={addPieceRow}
-              style={{ cursor: "pointer" }}
+              icon={MdArrowBack}
+              size="40px"
+              margin="16px"
+              padding="0px 0px 16px 0px"
+              onClick={() => history.push("/orders")}
+              style={{ cursor: "pointer", position: "absolute", left: "0" }}
             />
+            <Text
+              margin="0px 0px 20px 0px"
+              text-align="center"
+              font="normal 500 56px/1.2 --fontFamily-serifGeorgia"
+              color="--dark"
+              sm-margin="0px 0px 30px 0px"
+            >
+              Edit Order
+            </Text>
           </Box>
-          {pieces.map((piece, index) => (
-            <Box key={index} display="flex" align-items="center" margin="10px 0">
-              <Text width="5%" textAlign="center">
-                {index + 1}
-              </Text>
-              <Select
-                value={piece.type}
-                onChange={(e) => handleTypeChange(index, e.target.value)}
-                background="white"
-                width="20%"
-                padding="5px"
-                margin="0 10px"
-              >
-                <option value="Lehenga">Lehenga</option>
-                <option value="Saree">Saree</option>
-                <option value="Kurti">Kurti</option>
-                <option value="Western">Western</option>
-              </Select>
-              <Input
-                type="number"
-                value={piece.quantity}
-                onChange={(e) => handleQuantityChange(index, e.target.value)}
-                width="20%"
-                min="1"
-                background="white"
-                padding="5px"
-                margin="0 10px"
+
+          <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
+            {/* Your existing content goes here */}
+            {/* Customer Name */}
+            <Box display="flex" align-items="center" margin="15px 0px 15px 0px">
+              <Text margin="0">Customer Name</Text>
+              <FaWhatsapp
+                size="24px"
+                style={{ cursor: "pointer", marginLeft: "10px" }}
+                onClick={handleWhatsAppClick}
               />
-              <Input
-                type="text"
-                placeholder="Remarks"
-                value={piece.remarks}
-                onChange={(e) => handleRemarksChange(index, e.target.value)}
-                width="40%"
-                background="white"
-                padding="5px"
-                margin="0 10px"
-              />
+            </Box>
+            <Input
+              display="block"
+              background="white"
+              border-color="--color-darkL2"
+              border-radius="7.5px"
+              width="50%"
+              value={orderData.customer_name || ""}
+              readOnly
+            />
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
+
+            {/* Phone Number */}
+            <Text margin="15px 0px 15px 0px">Phone Number</Text>
+            <Input
+              display="block"
+              background="white"
+              border-color="--color-darkL2"
+              border-radius="7.5px"
+              width="50%"
+              value={orderData.phone_number || ""}
+              readOnly
+            />
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
+
+            {/* Progress */}
+            <Text margin="15px 0px 15px 0px">Progress</Text>
+            <Select
+              value={progress}
+              onChange={(e) => setProgress(e.target.value)}
+              background="white"
+              width="50%"
+              padding="5px"
+              border-radius="7.5px"
+            >
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </Select>
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
+
+            {/* Pieces */}
+            <Box
+              display="flex"
+              align-items="center"
+              justify-content="space-between"
+            >
+              <Text margin="15px 0px 15px 0px">Add Pieces</Text>
               <Icon
                 category="md"
-                icon={MdDeleteSweep}
+                icon={MdNoteAdd}
                 size="32px"
-                margin="0px 15px"
-                onClick={() => removePieceRow(index)}
+                margin="16px 0px 16px 0px"
+                onClick={addPieceRow}
                 style={{ cursor: "pointer" }}
               />
             </Box>
-          ))}
-          <Text margin="15px 0px 15px 0px">Total Pieces: {totalPieces}</Text>
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
-
-          <Text margin="15px 0px 15px 0px">Images</Text>
-          <FileUploader handleFile={handleFileUpload} />
-          {imageUrls.length > 0 && (
-            <Box display="flex" flex-wrap="wrap">
-              {imageUrls.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt={`Order Image ${index + 1}`}
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    margin: "10px",
-                    cursor: "pointer",
-                    objectFit: "cover",
-                  }}
-                  onClick={() => openImageInModal(url)}
+            {pieces.map((piece, index) => (
+              <Box key={index} display="flex" align-items="center" margin="10px 0">
+                <Text width="5%" textAlign="center">
+                  {index + 1}
+                </Text>
+                <Select
+                  value={piece.type}
+                  onChange={(e) => handleTypeChange(index, e.target.value)}
+                  background="white"
+                  width="20%"
+                  padding="5px"
+                  margin="0 10px"
+                >
+                  <option value="Blouse">Blouse</option>
+                  <option value="Lehenga">Lehenga</option>
+                  <option value="Dress">Dress</option>
+                  <option value="Peticoat">Peticoat</option>
+                </Select>
+                <Input
+                  type="number"
+                  value={piece.quantity}
+                  onChange={(e) => handleQuantityChange(index, e.target.value)}
+                  width="20%"
+                  min="1"
+                  background="white"
+                  padding="5px"
+                  margin="0 10px"
                 />
-              ))}
-            </Box>
-          )}
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
+                <Input
+                  type="text"
+                  placeholder="Remarks"
+                  value={piece.remarks}
+                  onChange={(e) => handleRemarksChange(index, e.target.value)}
+                  width="40%"
+                  background="white"
+                  padding="5px"
+                  margin="0 10px"
+                />
+                <Icon
+                  category="md"
+                  icon={MdDeleteSweep}
+                  size="32px"
+                  margin="0px 15px"
+                  onClick={() => removePieceRow(index)}
+                  style={{ cursor: "pointer" }}
+                />
+              </Box>
+            ))}
+            <Text margin="15px 0px 15px 0px">Total Pieces: {totalPieces}</Text>
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          <Text margin="15px 0px 15px 0px">Audio</Text>
-          {!audioURL && <AudioRecorder handleAudioUpload={handleAudioUpload} />}
-          {audioURL && (
-            <audio controls style={{ margin: "10px 0" }}>
-              <source src={audioURL} />
-              Your browser does not support the audio element.
-            </audio>
-          )}
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
+            {/* Images */}
+            <Text margin="15px 0px 15px 0px">Images</Text>
+            <FileUploader handleFile={handleFileUpload} />
+            {imageUrls.length > 0 && (
+              <Box display="flex" flex-wrap="wrap">
+                {imageUrls.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Order Image ${index + 1}`}
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      margin: "10px",
+                      cursor: "pointer",
+                      objectFit: "cover",
+                    }}
+                    onClick={() => openImageInModal(url)}
+                  />
+                ))}
+              </Box>
+            )}
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          <Text margin="15px 0px 15px 0px">Deadline</Text>
-          <Input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            width="40%"
-            background="white"
-            padding="5px"
-          />
-          <Hr margin="15px 0px 15px 0px" width="1200px" />
+            {/* Audio */}
+            <Text margin="15px 0px 15px 0px">Audio</Text>
+            {!audioURL && <AudioRecorder handleAudioUpload={handleAudioUpload} />}
+            {audioURL && (
+              <audio controls style={{ margin: "10px 0" }}>
+                <source src={audioURL} />
+                Your browser does not support the audio element.
+              </audio>
+            )}
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
 
-          <Button
-            onClick={handleSaveOrder}
-            margin="40px 0"
-            background="#cb7731"
-            color="white"
-            padding="10px 20px"
-            border-radius="7.5px"
-          >
-            Save Changes
-          </Button>
+            {/* Deadline */}
+            <Text margin="15px 0px 15px 0px">Deadline</Text>
+            <Input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              width="40%"
+              background="white"
+              padding="5px"
+            />
+            <Hr margin="15px 0px 15px 0px" width="1200px" />
+
+            {/* Save Button */}
+            <Button
+              onClick={handleSaveOrder}
+              margin="40px 0"
+              background="#cb7731"
+              color="white"
+              padding="10px 20px"
+              border-radius="7.5px"
+            >
+              Save Changes
+            </Button>
+          </Box>
         </Box>
+        {/* End Fixed-Width Container */}
       </Section>
 
       {modalOpen && (
