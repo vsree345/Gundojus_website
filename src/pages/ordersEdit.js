@@ -16,13 +16,12 @@ import { GlobalQuarklyPageStyles } from "global-page-styles";
 import { MdDeleteSweep, MdNoteAdd, MdArrowBack } from "react-icons/md";
 import {
   fetchOrderById,
-  saveOrderToDatabase,
-  deleteOrderById,
   editOrderById,
   uploadImage,
-  uploadAudio
+  uploadAudio,
 } from "./firebaseConfig"; // Import Firebase functions
 import { useHistory, useLocation } from "react-router-dom";
+import { FaWhatsapp } from "react-icons/fa";
 
 // Helper function to extract the UUID from the URL query string
 const useQuery = () => {
@@ -47,15 +46,14 @@ export default () => {
   const convertToInputDateFormat = (dateString) => {
     // Parse the date string, e.g., "November 8, 2024"
     const parsedDate = new Date(dateString);
-  
+
     // Format as YYYY-MM-DD for input date compatibility
     const year = parsedDate.getFullYear();
-    const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(parsedDate.getDate()).padStart(2, '0');
-  
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+    const day = String(parsedDate.getDate()).padStart(2, "0");
+
     return `${year}-${month}-${day}`;
   };
-  
 
   // Fetch order details on component mount
   useEffect(() => {
@@ -69,7 +67,7 @@ export default () => {
               setProgress(data?.progress || "Pending");
               setImageUrls(data.images || []);
               setAudioURL(data.audio_link || null);
-              setDeadline(convertToInputDateFormat(data.deadline) || ""); // Set deadline if available
+              setDeadline(convertToInputDateFormat(data.deadline_raw) || ""); // Set deadline if available
             } else {
               setError("Order not found or invalid UUID.");
             }
@@ -86,8 +84,6 @@ export default () => {
     };
     fetchData();
   }, [uuid]);
-
-
 
   // Handle file upload for additional images
   const handleFileUpload = async (files) => {
@@ -113,16 +109,16 @@ export default () => {
 
   const FileUploader = ({ handleFile }) => {
     const hiddenFileInput = useRef(null);
-  
+
     const handleClick = () => {
       hiddenFileInput.current.click();
     };
-  
+
     const handleChange = (event) => {
       const files = Array.from(event.target.files);
       handleFile(files);
     };
-  
+
     return (
       <>
         <Button
@@ -147,31 +143,31 @@ export default () => {
       </>
     );
   };
-  
+
   // Audio Recorder Component
   const AudioRecorder = ({ handleAudioUpload }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [audioURL, setAudioURL] = useState("");
     const mediaRecorderRef = useRef(null);
     const audioChunks = useRef([]);
-  
+
     const handleStartRecording = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
-  
+
         mediaRecorder.ondataavailable = (event) => {
           audioChunks.current.push(event.data);
         };
-  
+
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(audioChunks.current, { type: "audio/wav" });
           const audioLink = await handleAudioUpload(audioBlob);
           setAudioURL(audioLink);
           audioChunks.current = [];
         };
-  
+
         mediaRecorder.start();
         setIsRecording(true);
       } catch (error) {
@@ -179,14 +175,14 @@ export default () => {
         alert("Error accessing microphone");
       }
     };
-  
+
     const handleStopRecording = () => {
       if (mediaRecorderRef.current) {
         mediaRecorderRef.current.stop();
         setIsRecording(false);
       }
     };
-  
+
     return (
       <>
         <Button
@@ -209,36 +205,65 @@ export default () => {
     );
   };
 
+  // Function to format phone number for WhatsApp API
+  const formatPhoneNumber = (phone) => {
+    // Remove any non-digit characters
+    return phone.replace(/\D/g, "");
+  };
+
+  // Handle WhatsApp click
+  const handleWhatsAppClick = () => {
+    const message = `Your order has been confirmed.\nVisit gundojus.in/orders/view?uuid=${uuid} to check the progress.\n\n- Sujatha Reddy`;
+    const phoneNumber = formatPhoneNumber(orderData.phone_number);
+    const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(url, "_blank");
+  };
+
   // Handle updating order data in Firebase
   const handleSaveOrder = async () => {
     try {
-
       const convertToReadableDate = (inputDate) => {
         // Parse the input date string
         const date = new Date(inputDate);
-      
+
         // Array of month names
         const monthNames = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
         ];
-      
+
         // Get day, month, and year
         const day = date.getDate();
         const month = monthNames[date.getMonth()]; // Get the month name
         const year = date.getFullYear();
-      
+
         return `${month} ${day}, ${year}`;
       };
-      
 
       const updatedOrderData = {
         ...orderData,
-        pieces: { ...orderData.pieces, details: pieces, number_of_pieces: totalPieces },
+        pieces: {
+          ...orderData.pieces,
+          details: pieces,
+          number_of_pieces: totalPieces,
+        },
         progress,
         images: imageUrls, // Include updated images array
         audio_link: audioURL, // Include audio URL
-        deadline: convertToReadableDate(deadline), // Include deadline
+        deadline_raw: deadline, // Include deadline in YYYY-MM-DD format
+        deadline_formatted: convertToReadableDate(deadline), // Include deadline formatted
       };
       await editOrderById(uuid, updatedOrderData);
       alert("Order updated successfully");
@@ -337,7 +362,14 @@ export default () => {
         </Box>
 
         <Box min-width="100px" min-height="100px" padding="15px 0px 15px 0px">
-          <Text margin="15px 0px 15px 0px">Customer Name</Text>
+          <Box display="flex" align-items="center" margin="15px 0px 15px 0px">
+            <Text margin="0">Customer Name</Text>
+            <FaWhatsapp
+              size="24px"
+              style={{ cursor: "pointer", marginLeft: "10px" }}
+              onClick={handleWhatsAppClick}
+            />
+          </Box>
           <Input
             display="block"
             background="white"
@@ -393,7 +425,9 @@ export default () => {
           </Box>
           {pieces.map((piece, index) => (
             <Box key={index} display="flex" align-items="center" margin="10px 0">
-              <Text width="5%" textAlign="center">{index + 1}</Text>
+              <Text width="5%" textAlign="center">
+                {index + 1}
+              </Text>
               <Select
                 value={piece.type}
                 onChange={(e) => handleTypeChange(index, e.target.value)}

@@ -93,7 +93,7 @@ export const editOrderById = async (uuid, updatedFields) => {
 
 export const fetchOrdersByDate = async (date) => {
   const ordersRef = dbRef(database, 'orders');
-  const ordersQuery = query(ordersRef, orderByChild('deadline'), equalTo(date)); // Use 'deadline' as the field
+  const ordersQuery = query(ordersRef, orderByChild('deadline_raw'), equalTo(date)); // Use 'deadline' as the field
 
   const snapshot = await get(ordersQuery);
   const orders = [];

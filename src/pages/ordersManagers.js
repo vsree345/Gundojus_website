@@ -193,7 +193,7 @@ export default () => {
                   font="normal 400 16px/1.5 -apple-system, system-ui, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif"
                   color="--dark"
                 >
-                  {order.deadline || "N/A"}
+                  {order.deadline_formatted || "N/A"}
                 </Text>
 
                 {/* Edit Icon */}

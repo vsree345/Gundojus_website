@@ -36,9 +36,11 @@ const generateUUID = () => {
 // WhatsApp message sending function
 const sendWhatsAppMessage = (phoneNumber, orderUUID) => {
   const message = `Hi, your order with UUID: ${orderUUID} has been successfully placed.`;
-  console.log(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
-    message
-  )}`);
+  console.log(
+    `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      message
+    )}`
+  );
   // const whatsappAPIUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
   //   message
   // )}`;
@@ -207,6 +209,13 @@ export default () => {
 
   const totalPieces = pieces.reduce((acc, piece) => acc + piece.quantity, 0);
 
+  const formatDateLocal = (date) => {
+    const year = date.getFullYear();
+    const month = (`0${date.getMonth() + 1}`).slice(-2); // Months are zero-based
+    const day = (`0${date.getDate()}`).slice(-2);
+    return `${year}-${month}-${day}`;
+  };
+
   // Submit the order
   const handleSubmitOrder = async () => {
     // Get the current date and time
@@ -224,14 +233,6 @@ export default () => {
       })
       .replace(/(\d+)(th|st|nd|rd)/, "$1th");
 
-    const deadline_formatted = deadlineDate
-      .toLocaleDateString("en-US", {
-        day: "numeric",
-        year: "numeric",
-        month: "long",
-      })
-      .replace(/(\d+)(th|st|nd|rd)/, "$1th");
-
     // Generate UUID
     const orderUUID = generateUUID();
 
@@ -240,6 +241,14 @@ export default () => {
       (image) => image !== undefined && image !== null
     );
 
+    const deadline_raw = formatDateLocal(deadlineDate);
+    const deadline_formatted = deadlineDate
+      .toLocaleDateString("en-US", {
+        day: "numeric",
+        year: "numeric",
+        month: "long",
+      })
+      .replace(/(\d+)(th|st|nd|rd)/, "$1th");
     // Prepare order data
     const orderData = {
       customer_name: customerName,
@@ -250,8 +259,10 @@ export default () => {
       orderCreationTime,
       orderCreationDate,
       progress: "Pending",
-      uuid : orderUUID,
-      deadline: deadline_formatted, // Include the formatted deadline date
+      uuid: orderUUID,
+      deadline_raw: deadline_raw,
+      deadline_formatted: deadline_formatted,
+      // Include the formatted deadline date
     };
     // console.log(orderData);
     // Save order to Firebase Realtime Database
