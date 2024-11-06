@@ -213,7 +213,7 @@ export default () => {
 
   // Handle WhatsApp click
   const handleWhatsAppClick = () => {
-    const message = `Your order has been confirmed.\nVisit gundojus.in/orders/view?uuid=${uuid} to check the progress.\n\n- Sujatha Reddy`;
+    const message = `Your order has been confirmed.\nVisit gundojus.github.io/Gundojus-internal-tools/#/orders/view?uuid=${uuid} to check the progress.\n\n- Sujatha Reddy`;
     const phoneNumber = formatPhoneNumber(orderData.phone_number);
     const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
       message
