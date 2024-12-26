@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "ba02add25761c93f2ea7b9c68589ae1f",
+    "revision": "065ac1b113c3b6c27f97701a83e3fd9f",
     "url": "/Gundojus_website/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Gundojus_website/static/css/2.05cbb0d5.chunk.css"
   },
   {
-    "revision": "2003c2571293a5a3124a",
+    "revision": "7da50404ffb34ab906a5",
     "url": "/Gundojus_website/static/css/main.989288b7.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Gundojus_website/static/js/2.542cd252.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "2003c2571293a5a3124a",
-    "url": "/Gundojus_website/static/js/main.b852bc05.chunk.js"
+    "revision": "7da50404ffb34ab906a5",
+    "url": "/Gundojus_website/static/js/main.aadf73e9.chunk.js"
   },
   {
     "revision": "86e7ae8c06714941244d",

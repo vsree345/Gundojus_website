@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Gundojus_website/static/css/main.989288b7.chunk.css",
-    "main.js": "/Gundojus_website/static/js/main.b852bc05.chunk.js",
-    "main.js.map": "/Gundojus_website/static/js/main.b852bc05.chunk.js.map",
+    "main.js": "/Gundojus_website/static/js/main.aadf73e9.chunk.js",
+    "main.js.map": "/Gundojus_website/static/js/main.aadf73e9.chunk.js.map",
     "runtime-main.js": "/Gundojus_website/static/js/runtime-main.3541cf3b.js",
     "runtime-main.js.map": "/Gundojus_website/static/js/runtime-main.3541cf3b.js.map",
     "static/css/2.05cbb0d5.chunk.css": "/Gundojus_website/static/css/2.05cbb0d5.chunk.css",
     "static/js/2.542cd252.chunk.js": "/Gundojus_website/static/js/2.542cd252.chunk.js",
     "static/js/2.542cd252.chunk.js.map": "/Gundojus_website/static/js/2.542cd252.chunk.js.map",
     "index.html": "/Gundojus_website/index.html",
-    "precache-manifest.9ac6426d49de193e0f4ac5129a2799a1.js": "/Gundojus_website/precache-manifest.9ac6426d49de193e0f4ac5129a2799a1.js",
+    "precache-manifest.9baf965a19c5bba53e7072dda94535d7.js": "/Gundojus_website/precache-manifest.9baf965a19c5bba53e7072dda94535d7.js",
     "service-worker.js": "/Gundojus_website/service-worker.js",
     "static/css/2.05cbb0d5.chunk.css.map": "/Gundojus_website/static/css/2.05cbb0d5.chunk.css.map",
     "static/css/main.989288b7.chunk.css.map": "/Gundojus_website/static/css/main.989288b7.chunk.css.map",
@@ -20,6 +20,6 @@
     "static/css/2.05cbb0d5.chunk.css",
     "static/js/2.542cd252.chunk.js",
     "static/css/main.989288b7.chunk.css",
-    "static/js/main.b852bc05.chunk.js"
+    "static/js/main.aadf73e9.chunk.js"
   ]
 }
